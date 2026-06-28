@@ -377,6 +377,7 @@ async function bootstrapDatabase(userData) {
 
   if (fs.existsSync(dbPath)) return true;
 
+  log.info('[bootstrap] Creating window...');
   const win = new BrowserWindow({
     width: 480, height: 360,
     frame: false,
@@ -390,9 +391,23 @@ async function bootstrapDatabase(userData) {
     },
   });
 
-  win.loadURL('app://localhost/bootstrap.html');
-  win.once('ready-to-show', () => win.show());
+  win.on('closed', () => log.info('[bootstrap] Window closed event'));
+  win.on('close', () => log.info('[bootstrap] Window close event'));
+  win.webContents.on('render-process-gone', (_e, details) => {
+    log.error('[bootstrap] RENDERER CRASHED:', details.reason, details.exitCode);
+  });
+  win.webContents.on('did-fail-load', (_e, code, desc) => {
+    log.error('[bootstrap] did-fail-load:', code, desc);
+  });
 
+  log.info('[bootstrap] Loading URL...');
+  win.loadURL('app://localhost/bootstrap.html');
+  win.once('ready-to-show', () => {
+    log.info('[bootstrap] ready-to-show');
+    win.show();
+  });
+
+  log.info('[bootstrap] Starting download...');
   const ok = await downloadInitDb(dbDir, dbPath, win);
 
   if (!ok) {
