@@ -7,6 +7,19 @@ const { app } = require('electron');
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=128');
 
+// ── Single Instance Lock ──
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
 const {
   BrowserWindow, ipcMain, globalShortcut, protocol, screen,
   Tray, Menu, nativeImage, desktopCapturer, crashReporter,
@@ -97,12 +110,12 @@ function registerAppProtocol() {
     if (pathname.startsWith('/')) pathname = pathname.slice(1);
     if (!pathname || pathname === '') pathname = 'index.html';
 
-    // 8. Offline-first: fallback for missing sprites
     const publicPath = path.join(__dirname, 'public', pathname);
     try {
       const data = fs.readFileSync(publicPath);
       const ext = path.extname(publicPath).toLowerCase();
       const mime = MIME_TYPES[ext] || 'application/octet-stream';
+      log.info(`Served: ${pathname} (${mime}, ${data.length} bytes)`);
       return new Response(data, { headers: { 'Content-Type': mime } });
     } catch {
       // 8. If sprite image missing, serve the default avatar SVG
@@ -112,6 +125,7 @@ function registerAppProtocol() {
           return new Response(fallback, { headers: { 'Content-Type': 'image/svg+xml' } });
         } catch { /* fall through */ }
       }
+      log.warn(`404: ${pathname} (publicPath: ${publicPath})`);
       return new Response('Not Found', { status: 404 });
     }
   });
@@ -957,17 +971,18 @@ app.whenReady().then(async () => {
   });
 
   // 9. Set CSP via webContents session headers
+  // Note: 'self' does NOT match app:// scheme in Chromium — must list it explicitly
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' https://seerh5.61.com; " +
-          "img-src 'self' data: file: https://seerh5.61.com blob:; " +
-          "script-src 'self' 'unsafe-inline'; " +
-          "style-src 'self' 'unsafe-inline'; " +
-          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com; " +
-          "font-src 'self'; " +
+          "default-src 'self' 'unsafe-inline' app://localhost https://seerh5.61.com; " +
+          "img-src 'self' data: file: app://localhost https://seerh5.61.com blob:; " +
+          "script-src 'self' 'unsafe-inline' app://localhost; " +
+          "style-src 'self' 'unsafe-inline' app://localhost; " +
+          "connect-src 'self' app://localhost https://api.github.com https://objects.githubusercontent.com; " +
+          "font-src 'self' app://localhost; " +
           "object-src 'none'; " +
           "base-uri 'none'; " +
           "form-action 'none'; " +
