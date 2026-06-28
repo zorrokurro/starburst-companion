@@ -350,6 +350,14 @@ async function downloadInitDb(dbDir, dbPath, win) {
     const buffer = Buffer.concat(chunks);
     fs.writeFileSync(dbPath, buffer);
 
+    // Validate downloaded DB is a real SQLite file
+    const header = buffer.slice(0, 16).toString('utf8');
+    if (!header.startsWith('SQLite format 3')) {
+      log.error('Downloaded file is not a valid SQLite DB. Header:', header);
+      fs.unlinkSync(dbPath);
+      throw new Error('下載的檔案不是有效的資料庫（可能下載到錯誤頁面）');
+    }
+
     win.removeListener('closed', onClosed);
     win.webContents.send('bootstrap:complete');
     return true;

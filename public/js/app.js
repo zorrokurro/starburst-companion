@@ -436,6 +436,7 @@ async function loadSprites(reset = false) {
     }
   } catch (err) {
     console.error('Load sprites failed:', err);
+    document.getElementById('sprite-count').textContent = `載入失敗：${err.message || '未知錯誤'}`;
   } finally {
     IndexState.loading = false;
     indicator.style.display = 'none';

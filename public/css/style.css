@@ -41,6 +41,9 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   top: 0;
   z-index: 100;
   -webkit-app-region: drag;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
 }
 .top-nav .nav-brand {
   font-weight: 700;
@@ -48,8 +51,9 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   white-space: nowrap;
   color: var(--accent);
   -webkit-app-region: no-drag;
+  flex-shrink: 0;
 }
-.top-nav .nav-tabs { display: flex; gap: 4px; -webkit-app-region: no-drag; }
+.top-nav .nav-tabs { display: flex; gap: 4px; -webkit-app-region: no-drag; flex-shrink: 0; }
 .top-nav .locale-btn { -webkit-app-region: no-drag; }
 .top-nav .window-controls { -webkit-app-region: no-drag; }
 .nav-tab {
@@ -58,6 +62,8 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   color: var(--text-muted);
   transition: all 0.15s;
   font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .nav-tab:hover { color: var(--text); background: var(--bg-card); text-decoration: none; }
 .nav-tab.active { color: var(--accent); background: rgba(108,140,255,0.12); }
