@@ -115,7 +115,6 @@ function registerAppProtocol() {
       const data = fs.readFileSync(publicPath);
       const ext = path.extname(publicPath).toLowerCase();
       const mime = MIME_TYPES[ext] || 'application/octet-stream';
-      log.info(`Served: ${pathname} (${mime}, ${data.length} bytes)`);
       return new Response(data, { headers: { 'Content-Type': mime } });
     } catch {
       // 8. If sprite image missing, serve the default avatar SVG
@@ -125,7 +124,6 @@ function registerAppProtocol() {
           return new Response(fallback, { headers: { 'Content-Type': 'image/svg+xml' } });
         } catch { /* fall through */ }
       }
-      log.warn(`404: ${pathname} (publicPath: ${publicPath})`);
       return new Response('Not Found', { status: 404 });
     }
   });
@@ -971,18 +969,22 @@ app.whenReady().then(async () => {
   });
 
   // 9. Set CSP via webContents session headers
-  // Note: 'self' does NOT match app:// scheme in Chromium — must list it explicitly
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    if (details.url.startsWith('app://')) {
+      // Don't set CSP for app:// protocol — Chromium doesn't handle it well
+      callback({ responseHeaders: details.responseHeaders });
+      return;
+    }
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' app://localhost https://seerh5.61.com; " +
-          "img-src 'self' data: file: app://localhost https://seerh5.61.com blob:; " +
-          "script-src 'self' 'unsafe-inline' app://localhost; " +
-          "style-src 'self' 'unsafe-inline' app://localhost; " +
-          "connect-src 'self' app://localhost https://api.github.com https://objects.githubusercontent.com; " +
-          "font-src 'self' app://localhost; " +
+          "default-src 'self' 'unsafe-inline' https://seerh5.61.com; " +
+          "img-src 'self' data: file: https://seerh5.61.com blob:; " +
+          "script-src 'self' 'unsafe-inline'; " +
+          "style-src 'self' 'unsafe-inline'; " +
+          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com; " +
+          "font-src 'self'; " +
           "object-src 'none'; " +
           "base-uri 'none'; " +
           "form-action 'none'; " +
