@@ -18,7 +18,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, sans-serif;
+  font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans CJK TC', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;

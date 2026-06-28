@@ -500,11 +500,15 @@ ipcMain.handle('get-auto-launch', () => {
 });
 
 ipcMain.handle('set-auto-launch', (_e, enabled) => {
-  app.setLoginItemSettings({
-    openAtLogin: enabled,
-    path: app.getPath('exe'),
-  });
-  log.info(`Auto-launch: ${enabled}`);
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: enabled,
+      path: process.execPath,
+    });
+    log.info(`Auto-launch: ${enabled}`);
+  } catch (err) {
+    log.error('set-auto-launch failed:', err.message);
+  }
   return enabled;
 });
 
@@ -793,7 +797,12 @@ async function registerIpcHandlers() {
   // ── Sprites (with sender verification) ──
   ipcMain.handle('db:sprites:list', (_e, params) => {
     if (!verifySender(_e)) return { data: [], total: 0 };
-    return querySprites(params);
+    try {
+      return querySprites(params);
+    } catch (err) {
+      log.error('db:sprites:list failed:', err.message);
+      return { data: [], total: 0 };
+    }
   });
 
   ipcMain.handle('db:sprites:all', (_e) => {
@@ -813,11 +822,11 @@ async function registerIpcHandlers() {
   // ── Filters ──
   ipcMain.handle('db:filters:types', (_e) => {
     if (!verifySender(_e)) return [];
-    return getDistinctTypes();
+    try { return getDistinctTypes(); } catch { return []; }
   });
   ipcMain.handle('db:filters:stats', (_e) => {
     if (!verifySender(_e)) return { min_total: 0, max_total: 800 };
-    return getStatRange();
+    try { return getStatRange(); } catch { return { min_total: 0, max_total: 800 }; }
   });
 
   // ── Collections ──

@@ -38,25 +38,29 @@ function getDb() {
       );
     `);
     // 7. Composite indexes for query optimization
-    db.exec(`
-      CREATE INDEX IF NOT EXISTS idx_sprites_types ON sprites(types);
-      CREATE INDEX IF NOT EXISTS idx_sprites_cn_id ON sprites(cn_id);
-      CREATE INDEX IF NOT EXISTS idx_sprites_name_zh ON sprites(name_zh);
-      CREATE INDEX IF NOT EXISTS idx_sprite_skills_sprite ON sprite_skills(sprite_id);
-      CREATE INDEX IF NOT EXISTS idx_sprite_skills_skill ON sprite_skills(skill_id);
-      CREATE INDEX IF NOT EXISTS idx_soul_seals_sprite ON soul_seals(sprite_id);
-      CREATE INDEX IF NOT EXISTS idx_engravings_sprite ON engravings(exclusive_sprite_id);
-      CREATE INDEX IF NOT EXISTS idx_engravings_type ON engravings(type);
-      CREATE INDEX IF NOT EXISTS idx_engravings_rarity ON engravings(rarity);
-      CREATE INDEX IF NOT EXISTS idx_collection_items_col ON collection_items(collection_id);
-      CREATE INDEX IF NOT EXISTS idx_collection_items_sprite ON collection_items(sprite_id);
-      CREATE INDEX IF NOT EXISTS idx_teams_profile ON teams(profile_id);
-      CREATE INDEX IF NOT EXISTS idx_gacha_pools_cn ON gacha_pools(monster_cn_id);
-      CREATE INDEX IF NOT EXISTS idx_pet_advances_monster ON pet_advances(monster_id);
-      CREATE INDEX IF NOT EXISTS idx_type_chart_attack ON type_chart(attack_type);
-      CREATE INDEX IF NOT EXISTS idx_sprites_evolves_from ON sprites(evolves_from);
-      CREATE INDEX IF NOT EXISTS idx_sprites_evolves_to ON sprites(evolves_to);
-    `);
+    try {
+      db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_sprites_types ON sprites(types);
+        CREATE INDEX IF NOT EXISTS idx_sprites_cn_id ON sprites(cn_id);
+        CREATE INDEX IF NOT EXISTS idx_sprites_name_zh ON sprites(name_zh);
+        CREATE INDEX IF NOT EXISTS idx_sprite_skills_sprite ON sprite_skills(sprite_id);
+        CREATE INDEX IF NOT EXISTS idx_sprite_skills_skill ON sprite_skills(skill_id);
+        CREATE INDEX IF NOT EXISTS idx_soul_seals_sprite ON soul_seals(sprite_id);
+        CREATE INDEX IF NOT EXISTS idx_engravings_sprite ON engravings(exclusive_sprite_id);
+        CREATE INDEX IF NOT EXISTS idx_engravings_type ON engravings(type);
+        CREATE INDEX IF NOT EXISTS idx_engravings_rarity ON engravings(rarity);
+        CREATE INDEX IF NOT EXISTS idx_collection_items_col ON collection_items(collection_id);
+        CREATE INDEX IF NOT EXISTS idx_collection_items_sprite ON collection_items(sprite_id);
+        CREATE INDEX IF NOT EXISTS idx_teams_profile ON teams(profile_id);
+        CREATE INDEX IF NOT EXISTS idx_gacha_pools_cn ON gacha_pools(monster_cn_id);
+        CREATE INDEX IF NOT EXISTS idx_pet_advances_monster ON pet_advances(monster_id);
+        CREATE INDEX IF NOT EXISTS idx_type_chart_attack ON type_chart(attack_type);
+        CREATE INDEX IF NOT EXISTS idx_sprites_evolves_from ON sprites(evolves_from);
+        CREATE INDEX IF NOT EXISTS idx_sprites_evolves_to ON sprites(evolves_to);
+      `);
+    } catch (err) {
+      console.error('Index creation failed (non-fatal):', err.message);
+    }
   }
   return db;
 }
