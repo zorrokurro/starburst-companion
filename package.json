@@ -21,6 +21,7 @@
     "init-db": "node src/init-db.js",
     "seed": "node src/seed-type-chart.js",
     "download-sprites": "node src/download-sprites.js",
+    "export:dist": "node src/export-dist-data.cjs",
     "test": "node --test src/**/*.test.js test/**/*.test.js"
   },
   "dependencies": {

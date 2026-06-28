@@ -1,0 +1,3382 @@
+[
+  {
+    "attack_type": "光",
+    "defend_type": "光",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "草",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "虛空",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "蟲",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "超能",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "光",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "地面",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "蟲",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "輪迴",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "遠古",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "冰",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "暗影",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "機械",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "火",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "王",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "草",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "蟲",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "輪迴",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "電",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "飛行",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "地面",
+    "defend_type": "龍",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "暗影",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "機械",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "王",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "聖靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "戰鬥",
+    "defend_type": "龍",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "普通",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "光",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "超能",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "暗影",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "次元",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "神靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "遠古",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "電",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "機械",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "暗影",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "機械",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "王",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "虛空",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "蟲",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "超能",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "次元",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "地面",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "火",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "草",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "水",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "神靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "虛空",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "電",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "混沌",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "機械",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "火",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "蟲",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "王",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "地面",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "王",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "神靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "聖靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "蟲",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "輪迴",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "電",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神秘",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "水",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "混沌",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "火",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "遠古",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "電",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "神靈",
+    "defend_type": "龍",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "水",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "火",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "神秘",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "虛空",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "遠古",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "電",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "聖靈",
+    "defend_type": "龍",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "光",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "地面",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "戰鬥",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "暗影",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "次元",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "水",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "火",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "王",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "神秘",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "虛空",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "輪迴",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "電",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "自然",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "光",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "地面",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "水",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "草",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "遠古",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "飛行",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "草",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "光",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "暗影",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "次元",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "超能",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "輪迴",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "飛行",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "虛空",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "光",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "地面",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "混沌",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "蟲",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "蟲",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "光",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "蟲",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "超能",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "光",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "混沌",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "聖靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "虛空",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "輪迴",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "王",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "虛空",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "遠古",
+    "defend_type": "龍",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "光",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "冰",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "王",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "神秘",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "神靈",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "自然",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "草",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "超能",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "輪迴",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "電",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "邪靈",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "地面",
+    "multiplier": 0
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "暗影",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "次元",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "水",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "混沌",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "神秘",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "神靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "聖靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "草",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "虛空",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "蟲",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "邪靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "電",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "飛行",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "電",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "冰",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "戰鬥",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "機械",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "次元",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "水",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "混沌",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "火",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "聖靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "自然",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "草",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "蟲",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "遠古",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "邪靈",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "電",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "飛行",
+    "defend_type": "龍",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "光",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "冰",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "地面",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "戰鬥",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "普通",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "暗影",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "機械",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "次元",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "水",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "混沌",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "火",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "王",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "神秘",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "神靈",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "聖靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "自然",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "草",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "虛空",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "蟲",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "超能",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "輪迴",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "遠古",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "邪靈",
+    "multiplier": 2
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "電",
+    "multiplier": 0.5
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "飛行",
+    "multiplier": 1
+  },
+  {
+    "attack_type": "龍",
+    "defend_type": "龍",
+    "multiplier": 2
+  }
+]
