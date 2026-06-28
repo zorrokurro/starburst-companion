@@ -141,7 +141,7 @@ let pendingDataUpdate = null;
 async function checkDataPatch() {
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.getDb();
+    const db = dbModule.db();
     const localVersion = db.prepare('SELECT value FROM meta WHERE key = ?').get('data_version');
     const currentVersion = localVersion?.value || '0.0.0';
 
@@ -174,7 +174,7 @@ async function applyDataUpdate() {
 
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.getDb();
+    const db = dbModule.db();
 
     const upsertFns = {
       sprites: (rows) => {
@@ -575,7 +575,7 @@ async function gracefulShutdown() {
 
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.getDb();
+    const db = dbModule.db();
     log.info('Running VACUUM...');
     db.exec('VACUUM;');
     dbModule.closeDb();
@@ -664,7 +664,7 @@ async function registerIpcHandlers() {
     getAllCollections, getCollectionById, createCollection, updateCollection,
     deleteCollection, reorderCollection, getCollectionItems, addToCollection,
     removeFromCollection, reorderCollectionItem, getSpriteCollections,
-    searchEngravings, getEngravingsFilters, getAllGenericTraits, parseTypes, getDb,
+    searchEngravings, getEngravingsFilters, getAllGenericTraits, parseTypes, db: getDb,
   } = dbModule;
   const {
     calculateTypeMultiplier,
