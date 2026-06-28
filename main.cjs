@@ -118,8 +118,13 @@ function registerAppProtocol() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  1.3 資料增量補丁機制 (Data-only Patching)
+//  1.3 資料同步機制 (jsDelivr Data Distribution)
 // ═══════════════════════════════════════════════════════════════
+
+const DIST_DATA_BASE = 'https://cdn.jsdelivr.net/gh/zorrokurro/starburst-companion@main/dist-data';
+const DIST_TABLES = ['sprites', 'skills', 'sprite_skills', 'soul_seals', 'engravings', 'generic_traits', 'type_chart'];
+
+let pendingDataUpdate = null;
 
 async function checkDataPatch() {
   try {
@@ -128,32 +133,115 @@ async function checkDataPatch() {
     const localVersion = db.prepare('SELECT value FROM meta WHERE key = ?').get('data_version');
     const currentVersion = localVersion?.value || '0.0.0';
 
-    const response = await fetch('https://your-data-server.com/seer/patch.json');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(`${DIST_DATA_BASE}/version.json`, { signal: controller.signal });
+    clearTimeout(timeout);
     if (!response.ok) return;
 
-    const patch = await response.json();
-    if (patch.version === currentVersion) {
+    const remote = await response.json();
+    if (remote.version === currentVersion) {
       log.info(`Data version up to date: ${currentVersion}`);
       return;
     }
 
-    log.info(`Data update: ${currentVersion} → ${patch.version}`);
-    const upsertSprite = db.prepare(
-      'INSERT OR REPLACE INTO sprites (id, cn_id, name_zh, types, base_hp, base_atk, base_def, base_spatk, base_spdef, base_speed, evolves_from, evolves_to, evolve_level, gender) VALUES (@id, @cn_id, @name_zh, @types, @base_hp, @base_atk, @base_def, @base_spatk, @base_spdef, @base_speed, @evolves_from, @evolves_to, @evolve_level, @gender)'
-    );
-
-    const applyPatch = db.transaction((sprites) => {
-      for (const s of sprites) upsertSprite.run(s);
-      db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('data_version', patch.version);
+    log.info(`Remote data update available: ${currentVersion} → ${remote.version}`);
+    pendingDataUpdate = { remoteVersion: remote.version, localVersion: currentVersion, tables: remote.tables };
+    mainWindow?.webContents.send('data-update-available', {
+      remoteVersion: remote.version,
+      localVersion: currentVersion,
     });
-
-    if (patch.newSprites?.length) {
-      applyPatch(patch.newSprites);
-      log.info(`Patched ${patch.newSprites.length} sprites to v${patch.version}`);
-      mainWindow?.webContents.send('data-patched', { version: patch.version, count: patch.newSprites.length });
-    }
   } catch (err) {
-    log.error('Data patch failed:', err.message);
+    log.error('Data version check failed:', err.message);
+  }
+}
+
+async function applyDataUpdate() {
+  if (!pendingDataUpdate) return { ok: false, error: 'No pending update' };
+  const { remoteVersion, tables } = pendingDataUpdate;
+
+  try {
+    if (!dbModule) dbModule = await import('./src/db.js');
+    const db = dbModule.getDb();
+
+    const upsertFns = {
+      sprites: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO sprites
+          (id, cn_id, name_zh, name_en, types, base_hp, base_atk, base_def, base_spatk, base_spdef, base_speed,
+           height, weight, gender, evolves_from, evolves_to, evolve_level)
+          VALUES (@id, @cn_id, @name_zh, @name_en, @types, @base_hp, @base_atk, @base_def, @base_spatk, @base_spdef, @base_speed,
+           @height, @weight, @gender, @evolves_from, @evolves_to, @evolve_level)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      skills: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO skills (id, name, power, accuracy, pp, category, type, effect_desc, tags)
+          VALUES (@id, @name, @power, @accuracy, @pp, @category, @type, @effect_desc, @tags)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      sprite_skills: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO sprite_skills (sprite_id, skill_id, is_signature)
+          VALUES (@sprite_id, @skill_id, @is_signature)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      soul_seals: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO soul_seals (id, sprite_id, effect_desc, name_zh_tw, kind)
+          VALUES (@id, @sprite_id, @effect_desc, @name_zh_tw, @kind)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      engravings: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO engravings
+          (id, name, type, description, series_name, rarity, max_equip_level, max_hold_count,
+           base_hp, base_atk, base_def, base_spatk, base_spdef, base_speed,
+           hidden_hp, hidden_atk, hidden_def, hidden_spatk, hidden_spdef, hidden_speed,
+           has_hidden_attr, exclusive_sprite_id, exclusive_skill, angle_count)
+          VALUES (@id, @name, @type, @description, @series_name, @rarity, @max_equip_level, @max_hold_count,
+           @base_hp, @base_atk, @base_def, @base_spatk, @base_spdef, @base_speed,
+           @hidden_hp, @hidden_atk, @hidden_def, @hidden_spatk, @hidden_spdef, @hidden_speed,
+           @has_hidden_attr, @exclusive_sprite_id, @exclusive_skill, @angle_count)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      generic_traits: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO generic_traits (id, name, category, element_type, formula_type, description_template, custom_values, note)
+          VALUES (@id, @name, @category, @element_type, @formula_type, @description_template, @custom_values, @note)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+      type_chart: (rows) => {
+        const stmt = db.prepare(`INSERT OR REPLACE INTO type_chart (attack_type, defend_type, multiplier)
+          VALUES (@attack_type, @defend_type, @multiplier)`);
+        const tx = db.transaction((rs) => { for (const r of rs) stmt.run(r); });
+        tx(rows);
+      },
+    };
+
+    let totalRows = 0;
+    for (const tableName of tables) {
+      if (!upsertFns[tableName]) continue;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      const res = await fetch(`${DIST_DATA_BASE}/${tableName}.json`, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error(`Failed to fetch ${tableName}.json: ${res.status}`);
+      const rows = await res.json();
+      upsertFns[tableName](rows);
+      totalRows += rows.length;
+      log.info(`Applied ${tableName}: ${rows.length} rows`);
+    }
+
+    db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('data_version', remoteVersion);
+    pendingDataUpdate = null;
+    log.info(`Data update complete: v${remoteVersion}, ${totalRows} total rows`);
+    mainWindow?.webContents.send('data-update-done', { version: remoteVersion, totalRows });
+    return { ok: true, version: remoteVersion, totalRows };
+  } catch (err) {
+    log.error('Data update failed:', err.message);
+    mainWindow?.webContents.send('data-update-done', { error: err.message });
+    return { ok: false, error: err.message };
   }
 }
 
@@ -707,6 +795,18 @@ async function registerIpcHandlers() {
     return getAllGenericTraits();
   });
 
+  // ── Data update (jsDelivr) ──
+  ipcMain.handle('data:update-check', async (_e) => {
+    if (!verifySender(_e)) return { ok: false };
+    await checkDataPatch();
+    return { ok: true, pending: !!pendingDataUpdate, update: pendingDataUpdate };
+  });
+
+  ipcMain.handle('data:update-apply', async (_e) => {
+    if (!verifySender(_e)) return { ok: false };
+    return await applyDataUpdate();
+  });
+
   log.info('IPC handlers registered (with sender verification)');
 }
 
@@ -921,7 +1021,6 @@ app.whenReady().then(async () => {
   } else {
     mainWindow.webContents.on('did-finish-load', () => {
       setTimeout(() => {
-        checkDataPatch();
         autoUpdater.checkForUpdates().catch(() => {});
       }, 3000);
     });

@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Electron auto-update banner
   initUpdateBanner();
+  initDataUpdateBanner();
 });
 
 // ═══════════════════════════════════════════════
@@ -246,6 +247,55 @@ function initUpdateBanner() {
       textNode.textContent = `⏳ 下載中 ${data.percent}% `;
     }
   });
+}
+
+// ═══════════════════════════════════════════════
+//  Data Update Banner (jsDelivr)
+// ═══════════════════════════════════════════════
+
+function initDataUpdateBanner() {
+  const api = window.electronAPI;
+  if (!api?.onDataUpdateAvailable) return;
+
+  const banner = document.getElementById('data-update-banner');
+  if (!banner) return;
+
+  function showBanner(state, html) {
+    banner.className = `update-banner state-${state}`;
+    banner.innerHTML = html;
+  }
+
+  function hideBanner() {
+    banner.className = 'update-banner hidden';
+    banner.innerHTML = '';
+  }
+
+  api.onDataUpdateAvailable((data) => {
+    showBanner('available',
+      `📊 資料更新 v${data.remoteVersion} <span style="opacity:0.7;margin-left:2px;">— 點擊套用</span>`
+    );
+    banner.onclick = async () => {
+      showBanner('downloading', '⏳ 下載資料中…');
+      const result = await api.applyDataUpdate();
+      if (result.ok) {
+        showBanner('downloaded', `✅ 資料已更新至 v${result.version}（${result.totalRows} 筆）`);
+        setTimeout(hideBanner, 4000);
+      } else {
+        showBanner('error', `❌ 更新失敗: ${result.error}`);
+        banner.onclick = hideBanner;
+      }
+    };
+  });
+
+  api.onDataUpdateDone((data) => {
+    if (data.error) {
+      showBanner('error', `❌ 更新失敗: ${data.error}`);
+      banner.onclick = hideBanner;
+    }
+  });
+
+  // Check for data updates on startup
+  api.checkDataUpdate();
 }
 
 // ── Filter Options ──

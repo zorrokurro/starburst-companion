@@ -58,4 +58,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDataPatched: (callback) => {
     ipcRenderer.on('data-patched', (_event, data) => callback(data));
   },
+
+  // ── Data update (jsDelivr) ──
+  checkDataUpdate: () => ipcRenderer.invoke('data:update-check'),
+  applyDataUpdate: () => ipcRenderer.invoke('data:update-apply'),
+  onDataUpdateAvailable: (callback) => {
+    ipcRenderer.on('data-update-available', (_event, data) => callback(data));
+  },
+  onDataUpdateDone: (callback) => {
+    ipcRenderer.on('data-update-done', (_event, data) => callback(data));
+  },
 });
