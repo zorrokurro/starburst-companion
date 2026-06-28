@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>賽爾號精靈圖鑑</title>
+  <meta name="theme-color" content="#0f1118">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ── Top Nav ── -->
+  <nav class="top-nav">
+    <span class="nav-brand">賽爾號精靈圖鑑</span>
+    <div class="nav-tabs">
+      <a href="#index" class="nav-tab active">精靈圖鑑</a>
+      <a href="#type-chart" class="nav-tab">屬性克制</a>
+      <a href="#team-sim" class="nav-tab">隊伍模擬</a>
+    </div>
+    <div id="update-banner" class="update-banner hidden"></div>
+    <button id="locale-toggle" class="locale-btn" onclick="Locale.toggle()" title="切換至簡體">简</button>
+    <div class="window-controls">
+      <button class="win-btn" id="snap-btn" onclick="toggleSnap()" title="磁吸遊戲視窗">🧲</button>
+      <button class="win-btn" id="screenshot-btn" onclick="takeScreenshot()" title="截圖識別精靈">📷</button>
+      <button class="win-btn" id="ghost-mode-btn" onclick="toggleGhostMode()" title="幽靈模式（滑鼠穿透）">👻</button>
+      <button class="win-btn" onclick="window.electronAPI?.togglePin()" title="置頂">📌</button>
+      <button class="win-btn" onclick="window.electronAPI?.minimize()" title="最小化">➖</button>
+      <button class="win-btn win-btn-close" onclick="window.electronAPI?.close()" title="關閉">❌</button>
+    </div>
+  </nav>
+
+  <!-- ════════════ View: 精靈圖鑑 ════════════ -->
+  <div id="view-index" class="spa-view">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <input type="text" class="search-box" id="search-input" placeholder="搜尋精靈名稱 / 序號…">
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-list-view" title="列表模式">☰</button>
+          <button class="view-btn" id="btn-grid-view" title="卡片模式">▦</button>
+        </div>
+      </div>
+
+      <div class="toolbar-row filters-row">
+        <div class="filter-group">
+          <label>排序</label>
+          <select id="sort-select">
+            <option value="cn_id">序號</option>
+            <option value="name">名稱</option>
+            <option value="total">種族值總和</option>
+            <option value="hp">體力</option>
+            <option value="atk">攻擊</option>
+            <option value="def">防禦</option>
+            <option value="spatk">特攻</option>
+            <option value="spdef">特防</option>
+            <option value="speed">速度</option>
+          </select>
+          <button class="order-btn" id="btn-order" title="切換升降冪">↑</button>
+        </div>
+
+        <div class="filter-group">
+          <label>種族值範圍</label>
+          <div class="range-filter">
+            <input type="number" id="stat-min" placeholder="最低">
+            <span>～</span>
+            <input type="number" id="stat-max" placeholder="最高">
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="type-chips" id="type-filters"></div>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-muted);cursor:pointer;white-space:nowrap;margin-left:auto">
+          <input type="checkbox" id="final-only"> 只看最終進化
+        </label>
+      </div>
+    </div>
+
+    <div class="sprite-count" id="sprite-count">載入中…</div>
+
+    <!-- Sprite list/grid -->
+    <div class="sprite-container list-view" id="sprite-container"></div>
+
+    <div class="loading" id="loading-indicator" style="display:none">載入中…</div>
+    <div id="load-more-trigger" style="height:1px"></div>
+  </div>
+
+  <!-- ════════════ View: 屬性克制 ════════════ -->
+  <div id="view-type-chart" class="spa-view hidden">
+    <div class="tc-container">
+      <h1 class="tc-title">屬性克制計算器</h1>
+      <p class="tc-subtitle">選擇精靈或自訂屬性，查看克制關係</p>
+
+      <div class="card">
+        <h2>選擇精靈</h2>
+        <input type="text" class="search-box" id="tc-spriteSearch" placeholder="搜尋精靈名稱...">
+        <div class="sprite-list" id="tc-spriteList"></div>
+      </div>
+
+      <div class="card">
+        <h2>或自訂屬性</h2>
+        <div class="custom-type-input">
+          <select id="tc-type1"><option value="">選擇屬性 1</option></select>
+          <select id="tc-type2"><option value="">選擇屬性 2（選填）</option></select>
+          <button onclick="TypeChart?.calculateByType()">計算</button>
+        </div>
+      </div>
+
+      <div class="card" id="tc-resultCard" style="display:none;">
+        <h2>克制關係</h2>
+        <div class="selected-sprite" id="tc-selectedSprite"></div>
+        <div class="effectiveness-category effectiveness-super">
+          <h3>🔴 強克制（受到更高傷害）</h3>
+          <div class="type-list" id="tc-superEffective"></div>
+        </div>
+        <div class="effectiveness-category effectiveness-not">
+          <h3>🔵 微弱（受到較低傷害）</h3>
+          <div class="type-list" id="tc-notEffective"></div>
+        </div>
+        <div class="effectiveness-category effectiveness-immune">
+          <h3>⚪ 無效（不受傷害）</h3>
+          <div class="type-list" id="tc-immune"></div>
+        </div>
+        <div class="effectiveness-category effectiveness-normal">
+          <h3>🟢 普通（正常傷害）</h3>
+          <div class="type-list" id="tc-normal"></div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>⚠️ 注意：</strong>
+        <p>以上顯示的是單屬性對防守方的克制係數。雙屬性防守方的實際克制係數需依照規則計算（兩者皆為2則×4，其中一項為0則÷4，其他÷2）。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ View: 隊伍模擬 ════════════ -->
+  <div id="view-team-sim" class="spa-view hidden">
+    <div class="ts-container">
+      <h1 class="ts-title">隊伍模擬</h1>
+      <p class="ts-subtitle">組建隊伍，計算克制係數，試算傷害</p>
+
+      <!-- 3. Multi-Profile Selector -->
+      <div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 16px;">
+        <label style="font-size:13px;color:var(--text-muted);white-space:nowrap;">戰術配置：</label>
+        <select id="ts-profileSelect" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;">
+          <option value="">（預設配置）</option>
+        </select>
+        <button class="btn-small" onclick="TeamSim?.createProfile()" title="新增配置">＋</button>
+        <button class="btn-small" onclick="TeamSim?.renameProfile()" title="重新命名">✏️</button>
+        <button class="btn-small btn-danger" onclick="TeamSim?.deleteProfile()" title="刪除配置">🗑️</button>
+      </div>
+
+      <div class="card">
+        <h2>己方隊伍</h2>
+        <div class="team-grid" id="ts-myTeam"></div>
+      </div>
+
+      <div class="card">
+        <h2>對手隊伍</h2>
+        <div class="team-grid" id="ts-enemyTeam"></div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="TeamSim?.openSpriteSelector('my')">加入己方精靈</button>
+        <button onclick="TeamSim?.openSpriteSelector('enemy')">加入對手精靈</button>
+        <button class="btn-secondary" onclick="TeamSim?.saveTeam()">儲存隊伍</button>
+        <button class="btn-secondary" onclick="TeamSim?.shareTeam()">分享隊伍</button>
+        <button class="btn-secondary" onclick="TeamSim?.openImportModal()">匯入隊伍</button>
+        <button onclick="TeamSim?.openTextModal('export')">匯出文本</button>
+        <button onclick="TeamSim?.openTextModal('import')">匯入文本</button>
+        <button class="btn-danger" onclick="TeamSim?.clearAll()">清空全部</button>
+      </div>
+
+      <div class="card" id="ts-matrixCard" style="display:none;">
+        <h2>克制係數矩陣</h2>
+        <div class="matrix-container">
+          <table class="matchup-matrix" id="ts-matchupMatrix"></table>
+        </div>
+      </div>
+
+      <div class="card" id="ts-radarCard" style="display:none;">
+        <h2>屬性聯防雷達圖</h2>
+        <div class="radar-charts-row">
+          <div class="radar-chart-box">
+            <h4 style="color:var(--text-muted);text-align:center;margin-bottom:6px;">進攻覆蓋</h4>
+            <div id="ts-radarOffense"></div>
+          </div>
+          <div class="radar-chart-box">
+            <h4 style="color:var(--text-muted);text-align:center;margin-bottom:6px;">防禦弱點</h4>
+            <div id="ts-radarDefense"></div>
+          </div>
+        </div>
+        <div id="ts-weaknessWarnings"></div>
+      </div>
+
+      <div class="card" id="ts-tacticCard" style="display:none;">
+        <h2>戰術建議</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:12px;">
+          <div class="config-field" style="flex:1;min-width:150px;">
+            <label>我方出戰</label>
+            <select id="ts-tacticAttacker" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;"></select>
+          </div>
+          <div class="config-field" style="flex:1;min-width:150px;">
+            <label>對方出戰</label>
+            <select id="ts-tacticDefender" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;"></select>
+          </div>
+          <div class="config-field" style="flex:0;">
+            <label>排序</label>
+            <select id="ts-tacticSort" style="padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;">
+              <option value="recommend">推薦排序</option>
+              <option value="damage">傷害最高</option>
+              <option value="status">異常機率</option>
+            </select>
+          </div>
+          <button onclick="TeamSim.runTacticAdvice()" style="white-space:nowrap;">計算</button>
+        </div>
+        <div id="ts-tacticResults"></div>
+      </div>
+
+      <div class="damage-detail" id="ts-damageDetail">
+        <h3 style="color:var(--accent);margin-bottom:10px;">傷害試算</h3>
+        <div id="ts-damageContent"></div>
+        <div class="disclaimer" style="margin-top:15px;">
+          <strong>⚠️ 估算值提醒：</strong>
+          <p>以下傷害計算結果為估算值，非官方精確數值。公式為暫定公式，待蒐集台服實際對戰數據後校準。</p>
+        </div>
+      </div>
+
+      <div class="ts-damage-history" id="ts-damage-history">
+        <h4 style="color:var(--accent);margin-bottom:10px;">歷史紀錄</h4>
+        <div id="ts-historyList"></div>
+        <button class="btn-danger" onclick="TeamSim?.clearDamageHistory()" style="margin-top:10px;">清空紀錄</button>
+      </div>
+
+      <div class="card">
+        <h2>已儲存的隊伍</h2>
+        <div class="saved-teams-list" id="ts-savedTeamsList">
+          <div style="padding:20px;text-align:center;color:var(--text-muted);">尚無儲存的隊伍</div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>⚠️ 傷害計算提示：</strong>
+        <p>本工具的傷害計算僅為估算值，非官方精確數值。公式待蒐集台服實際對戰數據後校準。請勿將計算結果視為精確的遊戲數據。</p>
+      </div>
+    </div>
+
+    <!-- Sprite Selector Modal -->
+    <div class="ts-modal" id="ts-spriteModal">
+      <div class="ts-modal-content">
+        <div class="modal-header">
+          <h3>選擇精靈</h3>
+          <button class="close-btn" onclick="TeamSim?.closeModal()">&times;</button>
+        </div>
+        <input type="text" class="search-box" id="ts-modalSearch" placeholder="搜尋精靈名稱...">
+        <div class="sprite-list" id="ts-modalSpriteList"></div>
+      </div>
+    </div>
+
+    <!-- Config Modal -->
+    <div class="ts-modal" id="ts-configModal">
+      <div class="ts-modal-content">
+        <div class="modal-header">
+          <h3>精靈設定</h3>
+          <button class="close-btn" onclick="TeamSim?.closeConfigModal()">&times;</button>
+        </div>
+        <div id="ts-configContent"></div>
+      </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="ts-modal" id="ts-importModal">
+      <div class="ts-modal-content">
+        <div class="modal-header">
+          <h3>匯入隊伍</h3>
+          <button class="close-btn" onclick="TeamSim?.closeImportModal()">&times;</button>
+        </div>
+        <textarea class="share-code" id="ts-importCode" rows="4" placeholder="貼上隊伍代碼..."></textarea>
+        <div class="btn-group">
+          <button onclick="TeamSim?.importTeam()">匯入</button>
+          <button class="btn-secondary" onclick="TeamSim?.closeImportModal()">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="ts-modal" id="ts-shareModal">
+      <div class="ts-modal-content">
+        <div class="modal-header">
+          <h3>分享隊伍</h3>
+          <button class="close-btn" onclick="TeamSim?.closeShareModal()">&times;</button>
+        </div>
+        <p style="margin-bottom:10px;">複製以下代碼分享給其他玩家：</p>
+        <textarea class="share-code" id="ts-shareCode" rows="4" readonly></textarea>
+        <div class="btn-group">
+          <button onclick="TeamSim?.copyShareCode()">複製代碼</button>
+          <button class="btn-secondary" onclick="TeamSim?.closeShareModal()">關閉</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Import/Export Modal -->
+    <div class="ts-modal" id="ts-textModal">
+      <div class="ts-modal-content">
+        <div class="modal-header">
+          <h3 id="ts-textModalTitle">匯出文本</h3>
+          <button class="close-btn" onclick="TeamSim?.closeTextModal()">&times;</button>
+        </div>
+        <textarea class="share-code" id="ts-textArea" rows="12"></textarea>
+        <div class="btn-group">
+          <button id="ts-textModalAction" onclick="TeamSim?.textModalAction()">匯出</button>
+          <button class="btn-secondary" onclick="TeamSim?.closeTextModal()">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ Detail Modal (共用) ════════════ -->
+  <div class="modal" id="detail-modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <script src="/js/localize.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/type-chart.js"></script>
+  <script src="/js/team-sim.js"></script>
+  <script>Locale.init();</script>
+  <script>
+    // 2.6 幽靈模式切換
+    async function toggleGhostMode() {
+      const api = window.electronAPI;
+      if (!api?.toggleGhostMode) return;
+      const isGhost = await api.toggleGhostMode();
+      const btn = document.getElementById('ghost-mode-btn');
+      if (btn) {
+        btn.classList.toggle('active', isGhost);
+        btn.title = isGhost ? '幽靈模式：ON（點擊穿透）— 再按一次關閉' : '幽靈模式（滑鼠穿透）';
+      }
+    }
+
+    // 1. 磁吸遊戲視窗切換
+    async function toggleSnap() {
+      const api = window.electronAPI;
+      if (!api?.toggleWindowSnap) return;
+      const current = await api.isSnapping();
+      const enabled = await api.toggleWindowSnap(!current);
+      const btn = document.getElementById('snap-btn');
+      if (btn) {
+        btn.classList.toggle('active', enabled);
+        btn.title = enabled ? '磁吸模式：ON — 追蹤遊戲視窗' : '磁吸遊戲視窗';
+      }
+    }
+
+    // 2. 截圖識別精靈
+    async function takeScreenshot() {
+      const api = window.electronAPI;
+      if (!api?.captureScreenRegion) return;
+      // 截取螢幕中央區域（假設精靈出場位置）
+      const result = await api.captureScreenRegion({ x: 400, y: 200, width: 400, height: 300 });
+      if (result?.path) {
+        // 嘗試透過 OCR（若有 tesseract.js）或提示手動輸入
+        alert('截圖已保存至：' + result.path + '\n（OCR 模組待整合，請手動在精靈圖鑑中搜尋）');
+      } else {
+        alert('截圖失敗：' + (result?.error || '未知錯誤'));
+      }
+    }
+
+    // Listen for ghost mode changes from tray
+    if (window.electronAPI?.onGhostModeChanged) {
+      window.electronAPI.onGhostModeChanged((isGhost) => {
+        const btn = document.getElementById('ghost-mode-btn');
+        if (btn) {
+          btn.classList.toggle('active', isGhost);
+          btn.title = isGhost ? '幽靈模式：ON（點擊穿透）— 再按一次關閉' : '幽靈模式（滑鼠穿透）';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

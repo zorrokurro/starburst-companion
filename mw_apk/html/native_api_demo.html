@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <title>自定义H5工具的原生能力示例</title>
+    <link href="http://at.alicdn.com/t/font_1551254_rxrrzgz2kjc.css" rel="stylesheet"
+          type="text/css"/><!--地址不定时更新，引用时请注意-->
+    <link href="http://src.axui.cn/src/css/ax.css" rel="stylesheet" type="text/css">
+</head>
+<body class="ax-article" style="margin:48px;width:80%">
+
+<h1>自定义H5工具的原生能力示例</h1>
+
+<h3>下面是MW手册专属JavaScript调用原生能力API示例</h3>
+
+<a href="https://time.is/just">测试跳转</a>
+<a href="https://time.is/">测试跳转</a>
+
+<h2>弹出吐司提示</h2>
+<button onclick="mw.toast('这里是要弹出的内容')" class="ax-btn">弹出Toast</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.toast()</td>
+        <td>mw.toast("必要的文本型参数")</td>
+    </tr>
+</table>
+
+<h2>弹出底部提示</h2>
+<button onclick="mw.snack('这里是要弹出的内容')" class="ax-btn">弹出Snack</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.snack()</td>
+        <td>mw.snack("必要的文本型参数")</td>
+    </tr>
+</table>
+
+<h2>设置屏幕方向</h2>
+<button onclick="mw.setScreen('true')" class="ax-btn">竖屏：true</button>
+<button onclick="mw.setScreen('false')" class="ax-btn ax-primary">横屏：false</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.setScreen()</td>
+        <td>mw.setScreen("true")</td>
+    </tr>
+</table>
+
+<h2>获取手机状态栏高度</h2>
+<button onclick="mw.toast('高度：'+mw.getStatusHeight())" class="ax-btn">获取手机状态栏高度</button>
+<h5>可用于设置间距，现在手机屏幕太花里胡哨了，可以设置页面左间距(横屏)和顶间距(竖屏)</h5>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.getStatusHeight()</td>
+        <td>var a = mw.getStatusHeight()</td>
+    </tr>
+</table>
+
+<h2>关闭当前工具</h2>
+<button onclick="mw.closeApp()" class="ax-btn">关闭当前工具</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.closeApp()</td>
+        <td>mw.closeApp()</td>
+    </tr>
+</table>
+
+<h2>刷新页面</h2>
+<button onclick="mw.refresh()" class="ax-btn">刷新页面</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.refresh()</td>
+        <td>mw.refresh()</td>
+    </tr>
+</table>
+
+<h2>工具</h2>
+<button onclick="mw.hideTool()" class="ax-btn">隐藏右上角工具</button>
+<button onclick="mw.showTool()" class="ax-btn">显示右上角工具</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.hideTool()</td>
+        <td>mw.hideTool()</td>
+    </tr>
+    <tr>
+        <td>mw.showTool()</td>
+        <td>mw.showTool()</td>
+    </tr>
+</table>
+
+<h2>获取刻印</h2>
+<button onclick="mw.showDialog('刻印数据',mw.getMintMarks(0))" class="ax-btn">获取刻印数据</button>
+<p>注:需要本地数据库有数据，0代表第1页，每页50条数据</p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.getMintMarks()</td>
+        <td>var s = mw.getMintMarks(0)</td>
+    </tr>
+</table>
+
+<h2>根据精灵ID获取魂印</h2>
+<button onclick="mw.showDialog('ID5000的魂印',mw.getSoul('5000'))" class="ax-btn">ID5000的魂印</button>
+<button onclick="mw.showDialog('ID3437的魂印',mw.getSoul('3437'))" class="ax-btn ax-primary">
+    ID3437的魂印
+</button>
+<button onclick="mw.showDialog('ID3986的魂印',mw.getSoul('3986'))" class="ax-btn ax-success">
+    ID3986的魂印
+</button>
+<p>注:需要本地数据库有数据</p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.getSoul('5000')</td>
+        <td>var s = mw.getSoul('5000')</td>
+    </tr>
+</table>
+
+<h2>进入图片查看页面</h2>
+<button onclick="mw.showImg(['https://img0.baidu.com/it/u=1999921673,816131569&fm=26&fmt=auto&gp=0.jpg'])"
+        class="ax-btn">一张图
+</button>
+<button onclick="mw.showImg(['data:image/png;base64,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','https://img0.baidu.com/it/u=2308190668,2968374054&fm=11&fmt=auto&gp=0.jpg'])"
+        class="ax-btn ax-primary">N张图
+</button>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.showImg()</td>
+        <td>mw.showImg(["图片地址","字符串数组","可添加多张"])</td>
+    </tr>
+</table>
+
+<h2>弹出Dialog</h2>
+<button onclick="mw.showDialog('可以设置标题','描述内容')" class="ax-btn">弹出Dialog</button>
+<button onclick="mw.showDialog('可以设置标题','描述内容','修改按钮文本')" class="ax-btn ax-success">弹出Dialog2
+</button>
+<button onclick="alert('描述内容，无法设置标题')" class="ax-btn ax-danger">alert</button>
+<button onclick="test();" class="ax-btn ax-info">confirm</button>
+<h5>[按钮文本]是可选项</h5>
+<h5>也可以使用alert('提示内容')</h5>
+<h5>也可以使用confirm('提示内容')来获取返回值true(确定)或false(取消)</h5>
+<p></p>
+<table class="ax-table">
+    <tr>
+        <th>js</th>
+        <th>用法示例</th>
+    </tr>
+    <tr>
+        <td>mw.showDialog()</td>
+        <td>mw.showDialog("标题","描述内容"[,"修改按钮文本"])</td>
+    </tr>
+    <tr>
+        <td>alert()</td>
+        <td>alert("描述内容，无法设置标题")</td>
+    </tr>
+    <tr>
+        <td>confirm()</td>
+        <td>var b = confirm("描述内容，无法设置标题")</td>
+    </tr>
+</table>
+
+<h2>更多能力正在添加中...</h2>
+<p></p>
+<p></p>
+<p></p>
+<script src="http://src.axui.cn/src/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script src="http://src.axui.cn/src/js/ax.min.js" type="text/javascript"></script>
+<script>
+    function test(){
+    mw.toast(confirm('描述内容'))
+    }
+
+
+
+
+
+
+
+</script>
+</body>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="24" fill="#0f1118"/>
+  <rect x="4" y="4" width="184" height="184" rx="20" fill="none" stroke="#6c8cff" stroke-width="2" opacity="0.4"/>
+  <text x="96" y="108" text-anchor="middle" font-size="80" font-weight="700" fill="#6c8cff" font-family="sans-serif">賽</text>
+  <text x="96" y="155" text-anchor="middle" font-size="20" fill="#8888a0" font-family="sans-serif">精靈圖鑑</text>
+</svg>
