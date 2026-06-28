@@ -866,7 +866,7 @@ app.whenReady().then(async () => {
           "img-src 'self' data: file: https://seerh5.61.com blob:; " +
           "script-src 'self' 'unsafe-inline'; " +
           "style-src 'self' 'unsafe-inline'; " +
-          "connect-src 'self' https://your-data-server.com; " +
+          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com; " +
           "font-src 'self'; " +
           "object-src 'none'; " +
           "base-uri 'none'; " +
