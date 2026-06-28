@@ -30,5 +30,8 @@ Desktop.ini
 *.swp
 *.swo
 
+# Sprites (download via download-sprites.js or loaded from CDN)
+public/sprites/
+
 # Electron builder cache
 .cache/
