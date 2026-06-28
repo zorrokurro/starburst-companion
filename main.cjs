@@ -804,9 +804,16 @@ async function registerIpcHandlers() {
 
   // ── Sprites (with sender verification) ──
   ipcMain.handle('db:sprites:list', (_e, params) => {
-    if (!verifySender(_e)) return { data: [], total: 0 };
+    const senderUrl = _e.senderFrame?.url || 'unknown';
+    if (!verifySender(_e)) {
+      log.warn('db:sprites:list REJECTED sender:', senderUrl);
+      return { data: [], total: 0 };
+    }
     try {
-      return querySprites(params);
+      log.info('db:sprites:list called from:', senderUrl);
+      const result = querySprites(params);
+      log.info('db:sprites:list result: total=', result.total);
+      return result;
     } catch (err) {
       log.error('db:sprites:list failed:', err.message);
       return { data: [], total: 0 };

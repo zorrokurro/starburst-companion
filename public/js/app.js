@@ -163,6 +163,24 @@ const IndexState = {
 
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[init] DOMContentLoaded');
+  console.log('[init] electronAPI available:', !!window.electronAPI);
+  console.log('[init] dbQuery available:', !!window.electronAPI?.dbQuery);
+
+  // Quick IPC sanity check
+  (async () => {
+    try {
+      const types = await Promise.race([
+        API.filters.types(),
+        new Promise((_, r) => setTimeout(() => r(new Error('filters.types timeout')), 8000)),
+      ]);
+      console.log('[init] IPC sanity OK, types:', types.length);
+    } catch (err) {
+      console.error('[init] IPC sanity FAILED:', err.message);
+      document.getElementById('sprite-count').textContent = `IPC 連線失敗：${err.message}`;
+    }
+  })();
+
   // Index page (always init on load)
   loadFilterOptions();
   initFilterListeners();
@@ -408,18 +426,23 @@ async function loadSprites(reset = false) {
   }
 
   try {
-    const result = await API.sprites.list({
-      sort: IndexState.sort,
-      order: IndexState.order,
-      types: IndexState.selectedTypes.length ? IndexState.selectedTypes : undefined,
-      finalOnly: IndexState.finalOnly || undefined,
-      minTotal: IndexState.minTotal,
-      maxTotal: IndexState.maxTotal,
-      search: IndexState.search || undefined,
-      page: IndexState.page,
-      limit: 30,
-    });
+    console.log('[loadSprites] calling IPC, page=', IndexState.page);
+    const result = await Promise.race([
+      API.sprites.list({
+        sort: IndexState.sort,
+        order: IndexState.order,
+        types: IndexState.selectedTypes.length ? IndexState.selectedTypes : undefined,
+        finalOnly: IndexState.finalOnly || undefined,
+        minTotal: IndexState.minTotal,
+        maxTotal: IndexState.maxTotal,
+        search: IndexState.search || undefined,
+        page: IndexState.page,
+        limit: 30,
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('IPC timeout (10s)')), 10000)),
+    ]);
 
+    console.log('[loadSprites] got result, total=', result.total);
     IndexState.total = result.total;
     document.getElementById('sprite-count').textContent = `共 ${result.total} 筆精靈`;
 
