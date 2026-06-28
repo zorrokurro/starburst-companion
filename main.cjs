@@ -135,6 +135,7 @@ function registerAppProtocol() {
 
 const DIST_DATA_BASE = 'https://cdn.jsdelivr.net/gh/zorrokurro/starburst-companion@main/dist-data';
 const DIST_TABLES = ['sprites', 'skills', 'sprite_skills', 'soul_seals', 'engravings', 'generic_traits', 'type_chart'];
+const INIT_DB_URL = `${DIST_DATA_BASE}/seer.db`;
 
 let pendingDataUpdate = null;
 
@@ -280,6 +281,102 @@ function migrateUserDataFiles(userDataPath) {
   if (!fs.existsSync(spritesDir)) {
     fs.mkdirSync(spritesDir, { recursive: true });
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Bootstrap — 首次啟動從 jsDelivr 下載完整 DB
+// ═══════════════════════════════════════════════════════════════
+
+async function downloadInitDb(dbDir, dbPath, win) {
+  const controller = new AbortController();
+
+  // ★ Tip 1: 視窗關閉時中斷 fetch 並退出 App
+  let winClosed = false;
+  const onClosed = () => {
+    winClosed = true;
+    controller.abort();
+  };
+  win.on('closed', onClosed);
+
+  try {
+    fs.mkdirSync(dbDir, { recursive: true });
+
+    const timeout = setTimeout(() => controller.abort(), 120000);
+    const response = await fetch(INIT_DB_URL, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const totalBytes = Number(response.headers.get('content-length') || 0);
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (winClosed) return false;
+      chunks.push(value);
+      received += value.length;
+
+      win.webContents.send('bootstrap:progress', {
+        received,
+        total: totalBytes,
+        percent: totalBytes ? Math.round(received / totalBytes * 100) : -1,
+      });
+    }
+
+    if (winClosed) return false;
+
+    // ★ Tip 2: Buffer.concat 原生支援 Uint8Array
+    const buffer = Buffer.concat(chunks);
+    fs.writeFileSync(dbPath, buffer);
+
+    win.removeListener('closed', onClosed);
+    win.webContents.send('bootstrap:complete');
+    return true;
+  } catch (err) {
+    log.error('downloadInitDb failed:', err.message);
+    if (!winClosed) {
+      win.removeListener('closed', onClosed);
+      win.webContents.send('bootstrap:error', { message: err.message });
+    }
+    return false;
+  }
+}
+
+async function bootstrapDatabase(userData) {
+  const dbDir = path.join(userData, 'db');
+  const dbPath = path.join(dbDir, 'seer.db');
+
+  if (fs.existsSync(dbPath)) return true;
+
+  const win = new BrowserWindow({
+    width: 480, height: 360,
+    frame: false,
+    resizable: false,
+    backgroundColor: '#0f1118',
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      sandbox: false,
+    },
+  });
+
+  win.loadURL('app://localhost/bootstrap.html');
+  win.once('ready-to-show', () => win.show());
+
+  const ok = await downloadInitDb(dbDir, dbPath, win);
+
+  if (!ok) {
+    // ★ Tip 1: 下載失敗或被關閉，直接退出
+    if (!win.isDestroyed()) win.close();
+    return false;
+  }
+
+  win.close();
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -935,16 +1032,26 @@ ipcMain.handle('quit-and-install', (_e) => {
 
 app.whenReady().then(async () => {
   const userData = app.getPath('userData');
-  const dbPath = path.join(userData, 'db', 'seer.db');
+
+  // ★ 協議必須第一時間註冊（bootstrap 視窗載入 app://localhost/bootstrap.html）
+  registerAppProtocol();
 
   if (app.isPackaged) {
+    // 舊版遷移：如果 resourcesPath 有 db（舊安裝檔），先複製過來
     migrateUserDataFiles(userData);
+
+    // ★ 核心：如果 userData 裡還是沒有 DB，從 jsDelivr 下載
+    const dbPath = path.join(userData, 'db', 'seer.db');
+    if (!fs.existsSync(dbPath)) {
+      const ok = await bootstrapDatabase(userData);
+      if (!ok) { app.quit(); return; }
+    }
+
     process.env.SEER_DB_PATH = dbPath;
   } else {
     delete process.env.SEER_DB_PATH;
   }
 
-  registerAppProtocol();
   await registerIpcHandlers();
   registerSpriteLoader();
 

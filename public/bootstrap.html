@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>賽爾號戰術模擬器 — 初始化</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f1118;
+      color: #e0e0e0;
+      font-family: -apple-system, "Microsoft JhengHei", "PingFang TC", sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+    .container { text-align: center; width: 360px; }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 28px;
+    }
+    .progress-wrap {
+      background: #1a1d2a;
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f8cff, #6c5ce7);
+      border-radius: 8px;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+    .progress-detail {
+      font-size: 12px;
+      color: #666;
+    }
+    .error-wrap { display: none; }
+    .error-wrap h2 {
+      font-size: 16px;
+      color: #ff6b6b;
+      margin-bottom: 8px;
+    }
+    .error-wrap p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .retry-btn {
+      -webkit-app-region: no-drag;
+      background: #4f8cff;
+      color: #fff;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .retry-btn:hover { background: #3a7ae0; }
+    .complete-text {
+      font-size: 14px;
+      color: #4f8cff;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .complete-text.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">&#x1F680;</div>
+    <h1>賽爾號戰術模擬器</h1>
+    <p class="subtitle">首次啟動，正在初始化資料庫…</p>
+
+    <div id="progress-section">
+      <div class="progress-wrap">
+        <div class="progress-bar" id="bar"></div>
+      </div>
+      <p class="progress-text" id="percent">0%</p>
+      <p class="progress-detail" id="detail">準備中…</p>
+      <p class="complete-text" id="complete-text">初始化完成</p>
+    </div>
+
+    <div class="error-wrap" id="error-section">
+      <h2>初始化失敗</h2>
+      <p id="error-msg"></p>
+      <button class="retry-btn" id="retry-btn">重試</button>
+    </div>
+  </div>
+
+  <script>
+    const bar = document.getElementById('bar');
+    const percentEl = document.getElementById('percent');
+    const detailEl = document.getElementById('detail');
+    const completeEl = document.getElementById('complete-text');
+    const errorSection = document.getElementById('error-section');
+    const errorSectionWrap = document.getElementById('progress-section');
+    const errorMsg = document.getElementById('error-msg');
+    const retryBtn = document.getElementById('retry-btn');
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    window.electronAPI.onBootstrapProgress(({ received, total, percent }) => {
+      if (percent >= 0) {
+        bar.style.width = percent + '%';
+        percentEl.textContent = percent + '%';
+      }
+      if (total > 0) {
+        detailEl.textContent = formatBytes(received) + ' / ' + formatBytes(total);
+      } else {
+        detailEl.textContent = formatBytes(received) + ' 已下載';
+      }
+    });
+
+    window.electronAPI.onBootstrapComplete(() => {
+      bar.style.width = '100%';
+      percentEl.textContent = '100%';
+      completeEl.classList.add('show');
+      detailEl.textContent = '';
+    });
+
+    window.electronAPI.onBootstrapError(({ message }) => {
+      errorSectionWrap.style.display = 'none';
+      errorSection.style.display = 'block';
+      errorMsg.textContent = message || '未知錯誤，請檢查網路連線後重試。';
+    });
+
+    retryBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

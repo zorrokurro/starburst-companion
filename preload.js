@@ -68,4 +68,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDataUpdateDone: (callback) => {
     ipcRenderer.on('data-update-done', (_event, data) => callback(data));
   },
+
+  // ── Bootstrap (first-launch DB download) ──
+  onBootstrapProgress: (cb) => ipcRenderer.on('bootstrap:progress', (_e, data) => cb(data)),
+  onBootstrapComplete: (cb) => ipcRenderer.on('bootstrap:complete', () => cb()),
+  onBootstrapError: (cb) => ipcRenderer.on('bootstrap:error', (_e, data) => cb(data)),
 });

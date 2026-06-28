@@ -48,7 +48,6 @@
       "preload.js",
       "src/**/*",
       "public/**/*",
-      "db/**/*",
       "!public/sprites/head/**",
       "!public/sprites/body/**",
       "!node_modules/playwright/**",
@@ -76,20 +75,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true
     },
-    "extraResources": [
-      {
-        "from": "db/seer.db",
-        "to": "db/seer.db"
-      },
-      {
-        "from": "db/seer.db-wal",
-        "to": "db/seer.db-wal"
-      },
-      {
-        "from": "db/seer.db-shm",
-        "to": "db/seer.db-shm"
-      }
-    ],
+    "extraResources": [],
     "publish": {
       "provider": "github",
       "owner": "zorrokurro",
