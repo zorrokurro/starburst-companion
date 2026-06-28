@@ -133,9 +133,12 @@ function registerAppProtocol() {
 //  1.3 資料同步機制 (jsDelivr Data Distribution)
 // ═══════════════════════════════════════════════════════════════
 
-const DIST_DATA_BASE = 'https://cdn.jsdelivr.net/gh/zorrokurro/starburst-companion@main/dist-data';
+const DIST_DATA_BASE = 'https://cdn.jsdelivr.net/gh/zorrokurro/starburst-companion@master/dist-data';
 const DIST_TABLES = ['sprites', 'skills', 'sprite_skills', 'soul_seals', 'engravings', 'generic_traits', 'type_chart'];
-const INIT_DB_URL = `${DIST_DATA_BASE}/seer.db`;
+const INIT_DB_URLS = [
+  `${DIST_DATA_BASE}/seer.db`,
+  'https://raw.githubusercontent.com/zorrokurro/starburst-companion/master/dist-data/seer.db',
+];
 
 let pendingDataUpdate = null;
 
@@ -301,11 +304,26 @@ async function downloadInitDb(dbDir, dbPath, win) {
   try {
     fs.mkdirSync(dbDir, { recursive: true });
 
-    const timeout = setTimeout(() => controller.abort(), 120000);
-    const response = await fetch(INIT_DB_URL, { signal: controller.signal });
-    clearTimeout(timeout);
+    let response = null;
+    for (const url of INIT_DB_URLS) {
+      try {
+        log.info(`Trying download: ${url}`);
+        const timeout = setTimeout(() => controller.abort(), 30000);
+        response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (response.ok) {
+          log.info(`Download OK from: ${url}`);
+          break;
+        }
+        log.warn(`Download failed from ${url}: HTTP ${response.status}`);
+        response = null;
+      } catch (err) {
+        log.warn(`Download failed from ${url}: ${err.message}`);
+        response = null;
+      }
+    }
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response || !response.ok) throw new Error('All download sources failed');
 
     const totalBytes = Number(response.headers.get('content-length') || 0);
     const reader = response.body.getReader();
@@ -1090,7 +1108,7 @@ app.whenReady().then(async () => {
           "img-src 'self' data: file: https://seerh5.61.com blob:; " +
           "script-src 'self' 'unsafe-inline'; " +
           "style-src 'self' 'unsafe-inline'; " +
-          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com; " +
+          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com https://raw.githubusercontent.com; " +
           "font-src 'self'; " +
           "object-src 'none'; " +
           "base-uri 'none'; " +
