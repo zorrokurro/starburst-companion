@@ -1,6 +1,6 @@
 {
   "name": "seer-tactics",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "賽爾號戰術模擬器",
   "main": "main.cjs",
   "type": "module",
