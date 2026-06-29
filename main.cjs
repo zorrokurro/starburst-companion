@@ -1181,6 +1181,25 @@ app.whenReady().then(async () => {
         log.info('[ready] DB missing, launching bootstrap window...');
         const ok = await bootstrapWithWindow(userData);
         if (!ok) { app.quit(); return; }
+      } else {
+        // Validate DB has data (re-bootstrap if empty)
+        try {
+          const { default: Database } = await import('better-sqlite3');
+          const tmpDb = new Database(dbPath, { readonly: true });
+          const count = tmpDb.prepare('SELECT COUNT(*) as c FROM sprites').get().c;
+          tmpDb.close();
+          if (count === 0) {
+            log.warn('[ready] DB is empty, re-bootstrapping...');
+            fs.unlinkSync(dbPath);
+            const ok = await bootstrapWithWindow(userData);
+            if (!ok) { app.quit(); return; }
+          }
+        } catch (e) {
+          log.warn('[ready] DB validation failed, re-bootstrapping:', e.message);
+          try { fs.unlinkSync(dbPath); } catch {}
+          const ok = await bootstrapWithWindow(userData);
+          if (!ok) { app.quit(); return; }
+        }
       }
 
       process.env.SEER_DB_PATH = dbPath;
