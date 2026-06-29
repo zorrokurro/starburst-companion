@@ -1078,6 +1078,10 @@ ipcMain.on('minimize-window', (_e) => {
 
 ipcMain.on('close-window', (_e) => {
   if (!verifySender(_e)) return;
+  if (tray && !isQuitting) {
+    mainWindow?.hide();
+    return;
+  }
   gracefulShutdown();
 });
 
@@ -1237,6 +1241,10 @@ app.whenReady().then(async () => {
     mainWindow.on('close', (e) => {
       if (!isQuitting) {
         e.preventDefault();
+        if (tray) {
+          mainWindow.hide();
+          return;
+        }
         gracefulShutdown();
       }
     });
