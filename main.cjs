@@ -69,6 +69,7 @@ let mainWindow = null;
 let tray = null;
 let isPinned = false;
 let isQuitting = false;
+let isShuttingDown = false;
 let isGhostMode = false;
 let isSnapping = false;
 let snapInterval = null;
@@ -162,7 +163,7 @@ let pendingDataUpdate = null;
 async function checkDataPatch() {
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.db();
+    const db = dbModule.getDb();
     const localVersion = db.prepare('SELECT value FROM meta WHERE key = ?').get('data_version');
     const currentVersion = localVersion?.value || '0.0.0';
 
@@ -195,7 +196,7 @@ async function applyDataUpdate() {
 
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.db();
+    const db = dbModule.getDb();
 
     const upsertFns = {
       sprites: (rows) => {
@@ -718,7 +719,8 @@ ipcMain.handle('capture-screen-region', async (_e, region) => {
 // ═══════════════════════════════════════════════════════════════
 
 async function gracefulShutdown() {
-  if (isQuitting) return;
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   isQuitting = true;
   log.info('Graceful shutdown...');
 
@@ -727,7 +729,7 @@ async function gracefulShutdown() {
 
   try {
     if (!dbModule) dbModule = await import('./src/db.js');
-    const db = dbModule.db();
+    const db = dbModule.getDb();
     log.info('Running VACUUM...');
     db.exec('VACUUM;');
     dbModule.closeDb();
@@ -1076,11 +1078,6 @@ ipcMain.on('minimize-window', (_e) => {
 
 ipcMain.on('close-window', (_e) => {
   if (!verifySender(_e)) return;
-  // 4. Minimize to tray instead of quitting (unless Shift is held)
-  if (tray && !isQuitting) {
-    mainWindow?.hide();
-    return;
-  }
   gracefulShutdown();
 });
 
@@ -1240,10 +1237,6 @@ app.whenReady().then(async () => {
     mainWindow.on('close', (e) => {
       if (!isQuitting) {
         e.preventDefault();
-        if (tray) {
-          mainWindow.hide();
-          return;
-        }
         gracefulShutdown();
       }
     });

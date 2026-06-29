@@ -223,6 +223,8 @@ try { db.exec('ALTER TABLE skills ADD COLUMN priority INTEGER DEFAULT 0'); } cat
 try { db.exec('ALTER TABLE sprites ADD COLUMN acquisition TEXT'); } catch {}
 try { db.exec('ALTER TABLE sprites ADD COLUMN free_forbidden INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE sprites ADD COLUMN catch_rate INTEGER'); } catch {}
+try { db.exec('ALTER TABLE sprites ADD COLUMN playstyle TEXT'); } catch {}
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN trigger_condition TEXT'); } catch {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS movesets (

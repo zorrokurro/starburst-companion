@@ -61,6 +61,28 @@ function getDb() {
     } catch (err) {
       console.error('Index creation failed (non-fatal):', err.message);
     }
+    // 8. Schema migrations for new columns
+    try {
+      db.exec('ALTER TABLE sprites ADD COLUMN playstyle TEXT');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE soul_seals ADD COLUMN trigger_condition TEXT');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE skills ADD COLUMN priority INTEGER DEFAULT 0');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE sprites ADD COLUMN acquisition TEXT');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE sprites ADD COLUMN free_forbidden INTEGER DEFAULT 0');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE sprites ADD COLUMN catch_rate INTEGER');
+    } catch {}
+    try {
+      db.exec('ALTER TABLE soul_seals ADD COLUMN kind TEXT');
+    } catch {}
   }
   return db;
 }

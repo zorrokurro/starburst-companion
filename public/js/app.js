@@ -114,6 +114,7 @@ const ROUTES = {
   'index':       'view-index',
   'type-chart':  'view-type-chart',
   'team-sim':    'view-team-sim',
+  'battle-log':  'view-battle-log',
 };
 
 const routeInitialized = {};
