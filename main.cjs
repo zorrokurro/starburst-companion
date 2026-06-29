@@ -384,7 +384,17 @@ async function bootstrapWithWindow(userData) {
 
     const tryDownload = (index) => {
       if (index >= INIT_DB_URLS.length) {
-        log.error('[bootstrap] All download sources failed');
+        // Fallback: copy bundled DB from app resources
+        const bundledDb = path.join(__dirname, 'db', 'seer.db');
+        if (fs.existsSync(bundledDb) && fs.statSync(bundledDb).size > 1024 * 100) {
+          log.info(`[bootstrap] CDN failed, copying bundled DB: ${bundledDb}`);
+          fs.copyFileSync(bundledDb, dbPath);
+          log.info(`[bootstrap] Bundled DB copied: ${fs.statSync(dbPath).size} bytes`);
+          isBootstrapping = false;
+          resolve(true);
+          return;
+        }
+        log.error('[bootstrap] All download sources failed and no bundled DB');
         isBootstrapping = false;
         resolve(false);
         return;
@@ -1182,15 +1192,16 @@ app.whenReady().then(async () => {
         const ok = await bootstrapWithWindow(userData);
         if (!ok) { app.quit(); return; }
       } else {
-        // Validate DB has data (re-bootstrap if empty)
+        // Validate DB has sprites (re-bootstrap if empty)
         try {
-          const { default: Database } = await import('better-sqlite3');
+          const Database = require('better-sqlite3');
           const tmpDb = new Database(dbPath, { readonly: true });
           const count = tmpDb.prepare('SELECT COUNT(*) as c FROM sprites').get().c;
           tmpDb.close();
+          log.info(`[ready] DB has ${count} sprites`);
           if (count === 0) {
             log.warn('[ready] DB is empty, re-bootstrapping...');
-            fs.unlinkSync(dbPath);
+            try { fs.unlinkSync(dbPath); } catch {}
             const ok = await bootstrapWithWindow(userData);
             if (!ok) { app.quit(); return; }
           }
