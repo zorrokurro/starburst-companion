@@ -256,8 +256,9 @@ async function main() {
   updateEffectDesc(effectMap);
 
   // 自動觸發標籤清洗
-  console.log('\n── 觸發標籤清洗（update-skill-tags.js）──\n');
-  await import('./update-skill-tags.js');
+  console.log('\n── 觸發標籤清洗（update-skill-tags.cjs）──\n');
+  const { execSync } = await import('child_process');
+  execSync('node src/update-skill-tags.cjs', { cwd: join(__dirname, '..'), stdio: 'inherit' });
 }
 
 main().catch((e) => {

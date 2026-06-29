@@ -133,7 +133,7 @@ export function calculateDamage({
  * @param {Object} config - { level, ivs, evs, nature, extraStats }
  * @returns {{ hp, atk, def, spatk, spdef, speed }}
  */
-function resolveStats(sprite, config = {}) {
+export function resolveStats(sprite, config = {}) {
   return calculateStatsFromSprite(sprite, config);
 }
 
@@ -149,7 +149,7 @@ function resolveStats(sprite, config = {}) {
  * @param {Array|null} traitCache - 通用特性資料表
  * @returns {{ typeBonus: number, elementType: string|null, atkTypeBonus: number, atkType: string|null, damageReduction: number }}
  */
-function resolveTraitEffect(traitInfo, traitCache) {
+export function resolveTraitEffect(traitInfo, traitCache) {
   const result = { typeBonus: 0, elementType: null, atkTypeBonus: 0, atkType: null, damageReduction: 0 };
   if (!traitInfo || !traitCache) return result;
 

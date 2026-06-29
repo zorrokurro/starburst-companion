@@ -2,13 +2,13 @@ import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
-  querySprites, getSpriteById, getDistinctTypes, getStatRange,
+  querySprites, getSpriteById, getDistinctTypes, getDistinctTypeCombinations, getStatRange,
   getAllSpritesAll, getTypeChartAttackTypes, getTypeChartList,
   getAllCollections, getCollectionById, createCollection, updateCollection,
   deleteCollection, reorderCollection, getCollectionItems, addToCollection,
   removeFromCollection, reorderCollectionItem, getSpriteCollections,
   searchEngravings, getEngravingsFilters,
-  getAllGenericTraits
+  getAllGenericTraits, getMovesetsBySpriteId
 } from './db.js';
 import {
   calculateTypeMultiplier,
@@ -27,17 +27,19 @@ app.use(express.static(join(__dirname, '..', 'public')));
 
 app.get('/api/sprites', (req, res) => {
   try {
-    const { sort, order, types, finalOnly, minTotal, maxTotal, search, page, limit } = req.query;
+    const { sort, order, types, singleOnly, dualOnly, finalOnly, minTotal, maxTotal, search, playstyle, page, limit } = req.query;
     const parsedTypes = types ? types.split(',').filter(Boolean) : undefined;
 
     const parsedMinTotal = minTotal !== undefined ? Number(minTotal) : undefined;
     const parsedMaxTotal = maxTotal !== undefined ? Number(maxTotal) : undefined;
     const result = querySprites({
       sort, order, types: parsedTypes,
+      singleOnly: singleOnly === '1',
+      dualOnly: dualOnly === '1',
       finalOnly: finalOnly === '1',
       minTotal: parsedMinTotal,
       maxTotal: parsedMaxTotal,
-      search, page, limit,
+      search, playstyle, page, limit,
     });
     res.json(result);
   } catch (err) {
@@ -71,8 +73,20 @@ app.get('/api/sprites/:id/collections', (req, res) => {
   }
 });
 
+app.get('/api/sprites/:id/movesets', (req, res) => {
+  try {
+    res.json(getMovesetsBySpriteId(Number(req.params.id)));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/filters/types', (_req, res) => {
   try { res.json(getDistinctTypes()); } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/filters/type-combinations', (_req, res) => {
+  try { res.json(getDistinctTypeCombinations()); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.get('/api/filters/stats', (_req, res) => {
@@ -213,6 +227,20 @@ app.post('/api/team-matchup', (req, res) => {
       matrix.push(row);
     }
     res.json(matrix);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/full-matchup', (req, res) => {
+  const { myTeam, enemyTeam, configs } = req.body;
+  if (!myTeam || !enemyTeam) {
+    return res.status(400).json({ error: 'myTeam and enemyTeam are required' });
+  }
+  try {
+    const { calculateFullMatchup } = require('./matchupCalculator.js');
+    const result = calculateFullMatchup(myTeam, enemyTeam, configs || {});
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

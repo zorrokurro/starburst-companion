@@ -54,6 +54,8 @@ const API = {
           sort: params.sort,
           order: params.order,
           types: params.types ? params.types.split(',').filter(Boolean) : undefined,
+          singleOnly: params.singleOnly === '1',
+          dualOnly: params.dualOnly === '1',
           finalOnly: params.finalOnly === '1',
           minTotal: params.minTotal != null ? Number(params.minTotal) : undefined,
           maxTotal: params.maxTotal != null ? Number(params.maxTotal) : undefined,
@@ -83,6 +85,11 @@ const API = {
     // GET /api/filters/types
     if (segments[0] === 'api' && segments[1] === 'filters' && segments[2] === 'types') {
       return { channel: 'db:filters:types', args: [] };
+    }
+
+    // GET /api/filters/type-combinations
+    if (segments[0] === 'api' && segments[1] === 'filters' && segments[2] === 'type-combinations') {
+      return { channel: 'db:filters:type-combinations', args: [] };
     }
 
     // GET /api/filters/stats
@@ -165,6 +172,11 @@ const API = {
       return { channel: 'db:team-matchup', args: [body] };
     }
 
+    // POST /api/full-matchup
+    if (segments[0] === 'api' && segments[1] === 'full-matchup') {
+      return { channel: 'db:full-matchup', args: [body] };
+    }
+
     // GET /api/engravings/filters
     if (segments[0] === 'api' && segments[1] === 'engravings' && segments[2] === 'filters') {
       return { channel: 'db:engravings:filters', args: [] };
@@ -185,11 +197,25 @@ const API = {
     },
     get(id) { return API.invoke('db:sprites:get', id); },
     getCollections(id) { return API.invoke('db:sprites:collections', id); },
+    getMovesets(id) { return API.invoke('db:sprites:movesets', id); },
   },
 
   filters: {
     types() { return API.invoke('db:filters:types'); },
+    typeCombinations() { return API.invoke('db:filters:type-combinations'); },
     stats() { return API.invoke('db:filters:stats'); },
+  },
+
+  battle: {
+    log(log) { return API.invoke('db:battle:log', log); },
+    logs(limit, offset) { return API.invoke('db:battle:logs', limit, offset); },
+    stats() { return API.invoke('db:battle:stats'); },
+    summary() { return API.invoke('db:battle:summary'); },
+  },
+
+  meta: {
+    aggregate(season) { return API.invoke('db:meta:aggregate', season); },
+    reports(season, limit) { return API.invoke('db:meta:reports', season, limit); },
   },
 
   collections: {

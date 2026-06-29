@@ -3,7 +3,8 @@
  * 全域模組，掛載到 window.Locale
  */
 const Locale = (() => {
-  let lang = localStorage.getItem('lang') || 'tw';
+  let lang;
+  try { lang = localStorage.getItem('lang') || 'tw'; } catch { lang = 'tw'; }
 
   const MAP_TW_CN = {
     '個體值': '个体值', '種族值': '种族值', '學習力': '努力值',
@@ -104,7 +105,7 @@ const Locale = (() => {
 
   function toggle() {
     lang = lang === 'tw' ? 'cn' : 'tw';
-    localStorage.setItem('lang', lang);
+    try { localStorage.setItem('lang', lang); } catch {}
     const btn = document.getElementById('locale-toggle');
     if (btn) btn.textContent = lang === 'tw' ? '简' : '繁';
     apply();

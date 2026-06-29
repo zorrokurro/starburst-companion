@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>賽爾號精靈圖鑑</title>
+  <title>星爆輔助器</title>
   <meta name="theme-color" content="#0f1118">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -11,11 +11,12 @@
 
   <!-- ── Top Nav ── -->
   <nav class="top-nav">
-    <span class="nav-brand">賽爾號精靈圖鑑</span>
+      <span class="nav-brand">星爆輔助器</span>
     <div class="nav-tabs">
       <a href="#index" class="nav-tab active">精靈圖鑑</a>
       <a href="#type-chart" class="nav-tab">屬性克制</a>
       <a href="#team-sim" class="nav-tab">隊伍模擬</a>
+      <a href="#battle-log" class="nav-tab">戰後記錄</a>
     </div>
     <div id="update-banner" class="update-banner hidden"></div>
     <div id="data-update-banner" class="update-banner hidden"></div>
@@ -71,10 +72,27 @@
       </div>
 
       <div class="toolbar-row">
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-tab="single">單屬性</button>
+          <button class="filter-tab" data-tab="dual">雙屬性</button>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
         <div class="type-chips" id="type-filters"></div>
         <label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-muted);cursor:pointer;white-space:nowrap;margin-left:auto">
           <input type="checkbox" id="final-only"> 只看最終進化
         </label>
+        <select id="playstyle-filter" style="font-size:13px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg-secondary);color:var(--text-primary)">
+          <option value="">全部打法</option>
+          <option value="attacker_phys">物攻手</option>
+          <option value="attacker_spec">特攻手</option>
+          <option value="tank">坦克</option>
+          <option value="speedster">速度型</option>
+          <option value="support">輔助型</option>
+          <option value="disruptive">干扰型</option>
+          <option value="balanced">均衡型</option>
+        </select>
       </div>
     </div>
 
@@ -220,6 +238,25 @@
         <div id="ts-tacticResults"></div>
       </div>
 
+      <div class="card" id="ts-matchupAnalysisCard" style="display:none;">
+        <h2>對位分析</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <button onclick="TeamSim.runMatchupAnalysis()" id="ts-matchupBtn">分析全對位</button>
+          <span id="ts-matchupStatus" style="color:var(--text-muted);font-size:13px;"></span>
+        </div>
+        <div id="ts-matchupResults"></div>
+      </div>
+
+      <div class="card" id="ts-banPickCard" style="display:none;">
+        <h2>Ban/Pick 模擬</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <button onclick="TeamSim.startBanPick()" id="ts-banPickBtn">開始模擬</button>
+          <button onclick="TeamSim.resetBanPick()" class="btn-danger" style="display:none;" id="ts-banPickReset">重置</button>
+          <span id="ts-banPickStatus" style="color:var(--text-muted);font-size:13px;"></span>
+        </div>
+        <div id="ts-banPickResults"></div>
+      </div>
+
       <div class="damage-detail" id="ts-damageDetail">
         <h3 style="color:var(--accent);margin-bottom:10px;">傷害試算</h3>
         <div id="ts-damageContent"></div>
@@ -313,6 +350,96 @@
         <div class="btn-group">
           <button id="ts-textModalAction" onclick="TeamSim?.textModalAction()">匯出</button>
           <button class="btn-secondary" onclick="TeamSim?.closeTextModal()">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ View: 戰後記錄 ════════════ -->
+  <div id="view-battle-log" class="spa-view hidden">
+    <div class="ts-container">
+      <h1 class="ts-title">戰後記錄</h1>
+      <p class="ts-subtitle">記錄對戰結果，查看統計分析</p>
+
+      <!-- Summary Card -->
+      <div class="card" id="bl-summaryCard">
+        <h2>戰績總覽</h2>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div id="bl-totalGames" style="font-size:28px;font-weight:bold;color:var(--accent);">0</div>
+            <div style="font-size:12px;color:var(--text-muted);">總場次</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="bl-winRate" style="font-size:28px;font-weight:bold;color:#4caf50;">0%</div>
+            <div style="font-size:12px;color:var(--text-muted);">勝率</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="bl-wins" style="font-size:28px;font-weight:bold;color:#4caf50;">0</div>
+            <div style="font-size:12px;color:var(--text-muted);">勝</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="bl-losses" style="font-size:28px;font-weight:bold;color:#f44336;">0</div>
+            <div style="font-size:12px;color:var(--text-muted);">敗</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Record Battle -->
+      <div class="card">
+        <h2>記錄對戰</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <label style="font-size:13px;color:var(--text-muted);">模式：</label>
+            <select id="bl-mode" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;">
+              <option value="ranked">排位賽</option>
+              <option value="casual">休閒賽</option>
+              <option value="expert">專家賽</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <label style="font-size:13px;color:var(--text-muted);white-space:nowrap;">我方陣容：</label>
+            <input type="text" id="bl-myTeam" class="search-box" placeholder="精靈名稱，用逗號分隔" style="flex:1;">
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <label style="font-size:13px;color:var(--text-muted);white-space:nowrap;">對方陣容：</label>
+            <input type="text" id="bl-enemyTeam" class="search-box" placeholder="精靈名稱，用逗號分隔" style="flex:1;">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="BattleLog?.record('win')" style="background:#4caf50;color:white;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">勝利</button>
+            <button onclick="BattleLog?.record('lose')" style="background:#f44336;color:white;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">敗北</button>
+            <button onclick="BattleLog?.record('draw')" style="background:#ff9800;color:white;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">平手</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Battle History -->
+      <div class="card">
+        <h2>對戰紀錄</h2>
+        <div id="bl-history" style="max-height:400px;overflow-y:auto;">
+          <div style="text-align:center;color:var(--text-muted);padding:20px;">尚無對戰紀錄</div>
+        </div>
+      </div>
+
+      <!-- Sprite Usage Stats -->
+      <div class="card">
+        <h2>精靈使用率</h2>
+        <div id="bl-stats" style="max-height:300px;overflow-y:auto;">
+          <div style="text-align:center;color:var(--text-muted);padding:20px;">尚無統計資料</div>
+        </div>
+      </div>
+
+      <!-- Meta Leaderboard -->
+      <div class="card">
+        <h2>Meta 排行榜</h2>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+          <label style="font-size:13px;color:var(--text-muted);">賽季：</label>
+          <select id="bl-metaSeason" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;">
+            <option value="2026-07">2026-07</option>
+          </select>
+          <button onclick="BattleLog?.refreshMeta()" style="padding:4px 12px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">更新統計</button>
+        </div>
+        <div id="bl-metaList" style="max-height:400px;overflow-y:auto;">
+          <div style="text-align:center;color:var(--text-muted);padding:20px;">尚無 Meta 資料</div>
         </div>
       </div>
     </div>

@@ -78,8 +78,8 @@ const insertSprite = db.prepare(`
 `);
 
 const insertSkill = db.prepare(`
-  INSERT OR IGNORE INTO skills (name, power, accuracy, pp, category, type, effect_desc)
-  VALUES (@name, @power, @accuracy, @pp, @category, @type, @effect_desc)
+  INSERT OR IGNORE INTO skills (name, power, accuracy, pp, category, type, effect_desc, priority)
+  VALUES (@name, @power, @accuracy, @pp, @category, @type, @effect_desc, @priority)
 `);
 
 const insertSpriteSkill = db.prepare(`
@@ -192,6 +192,7 @@ const importTransaction = db.transaction(() => {
           category: category,
           type: skillType,
           effect_desc: effectDesc,
+          priority: parseInt(moveData.Priority) || 0,
         });
 
         // Get skill ID - try by name+type first, then by name+power+type

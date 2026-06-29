@@ -3,32 +3,55 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ── 3.7 極限限制記憶體 & 禁用 GPU 冗餘（必須在 app.ready 之前）──
-const { app } = require('electron');
+const { app, protocol } = require('electron');
 app.disableHardwareAcceleration();
-app.commandLine.appendSwitch('js-flags', '--max-old-space-size=128');
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=256');
+
+// ★ Register app:// as privileged scheme (needed for localStorage/sessionStorage)
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }
+]);
+
+// ── Log must be available before single-instance lock (lock failure needs logging) ──
+const log = require('electron-log');
 
 // ── Single Instance Lock ──
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-} else {
+// If lock fails, don't quit immediately — zombie processes from old installs
+// may hold the lock. Defer the decision to app.whenReady().
+let gotTheLock = app.requestSingleInstanceLock();
+let secondInstanceReceived = false;
+
+if (gotTheLock) {
   app.on('second-instance', () => {
-    if (mainWindow) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
     }
   });
+} else {
+  // Lock failed: another instance *might* be running.
+  // Wait for second-instance event — if it fires, focus existing window and quit.
+  // If no event comes by the time app is ready, assume zombie lock and proceed.
+  log.info('[lock] Single instance lock failed, waiting for second-instance...');
+  app.on('second-instance', () => {
+    secondInstanceReceived = true;
+    log.info('[lock] second-instance received, focusing existing window');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+    app.quit();
+  });
 }
 
 const {
-  BrowserWindow, ipcMain, globalShortcut, protocol, screen,
+  BrowserWindow, ipcMain, globalShortcut, screen, session,
   Tray, Menu, nativeImage, desktopCapturer, crashReporter,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
 const { autoUpdater } = require('electron-updater');
-const log = require('electron-log');
 
 const isDev = process.argv.includes('--dev');
 
@@ -40,14 +63,7 @@ log.info('═══ App starting ═══');
 // ═══════════════════════════════════════════════════════════════
 //  10. Crash Reporter (Phase 3)
 // ═══════════════════════════════════════════════════════════════
-if (!isDev) {
-  crashReporter.start({
-    productName: 'SeerTactics',
-    submitURL: '',
-    uploadToServer: false,
-    compress: true,
-  });
-}
+// CrashReporter disabled for stability
 
 let mainWindow = null;
 let tray = null;
@@ -56,6 +72,7 @@ let isQuitting = false;
 let isGhostMode = false;
 let isSnapping = false;
 let snapInterval = null;
+let isBootstrapping = false;
 
 // Module caches (loaded dynamically via import())
 let dbModule = null;
@@ -290,16 +307,8 @@ function migrateUserDataFiles(userDataPath) {
 //  Bootstrap — 首次啟動從 jsDelivr 下載完整 DB
 // ═══════════════════════════════════════════════════════════════
 
-async function downloadInitDb(dbDir, dbPath, win) {
+async function downloadInitDb(dbDir, dbPath, bootstrapWin) {
   const controller = new AbortController();
-
-  // ★ Tip 1: 視窗關閉時中斷 fetch 並退出 App
-  let winClosed = false;
-  const onClosed = () => {
-    winClosed = true;
-    controller.abort();
-  };
-  win.on('closed', onClosed);
 
   try {
     fs.mkdirSync(dbDir, { recursive: true });
@@ -333,24 +342,21 @@ async function downloadInitDb(dbDir, dbPath, win) {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      if (winClosed) return false;
       chunks.push(value);
       received += value.length;
 
-      win.webContents.send('bootstrap:progress', {
-        received,
-        total: totalBytes,
-        percent: totalBytes ? Math.round(received / totalBytes * 100) : -1,
-      });
+      if (bootstrapWin && !bootstrapWin.isDestroyed()) {
+        bootstrapWin.webContents.send('bootstrap:progress', {
+          received,
+          total: totalBytes,
+          percent: totalBytes ? Math.round(received / totalBytes * 100) : -1,
+        });
+      }
     }
 
-    if (winClosed) return false;
-
-    // ★ Tip 2: Buffer.concat 原生支援 Uint8Array
     const buffer = Buffer.concat(chunks);
     fs.writeFileSync(dbPath, buffer);
 
-    // Validate downloaded DB is a real SQLite file
     const header = buffer.slice(0, 16).toString('utf8');
     if (!header.startsWith('SQLite format 3')) {
       log.error('Downloaded file is not a valid SQLite DB. Header:', header);
@@ -358,66 +364,70 @@ async function downloadInitDb(dbDir, dbPath, win) {
       throw new Error('下載的檔案不是有效的資料庫（可能下載到錯誤頁面）');
     }
 
-    win.removeListener('closed', onClosed);
-    win.webContents.send('bootstrap:complete');
+    log.info(`Download complete: ${buffer.length} bytes`);
     return true;
   } catch (err) {
     log.error('downloadInitDb failed:', err.message);
-    if (!winClosed) {
-      win.removeListener('closed', onClosed);
-      win.webContents.send('bootstrap:error', { message: err.message });
-    }
     return false;
   }
 }
 
-async function bootstrapDatabase(userData) {
-  const dbDir = path.join(userData, 'db');
-  const dbPath = path.join(dbDir, 'seer.db');
+async function bootstrapWithWindow(userData) {
+  return new Promise((resolve) => {
+    isBootstrapping = true;
+    const dbDir = path.join(userData, 'db');
+    const dbPath = path.join(dbDir, 'seer.db');
 
-  if (fs.existsSync(dbPath)) return true;
+    log.info('[bootstrap] Downloading DB via PowerShell...');
+    fs.mkdirSync(dbDir, { recursive: true });
 
-  log.info('[bootstrap] Creating window...');
-  const win = new BrowserWindow({
-    width: 480, height: 360,
-    frame: false,
-    resizable: false,
-    backgroundColor: '#0f1118',
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      sandbox: false,
-    },
+    const tryDownload = (index) => {
+      if (index >= INIT_DB_URLS.length) {
+        log.error('[bootstrap] All download sources failed');
+        isBootstrapping = false;
+        resolve(false);
+        return;
+      }
+
+      const url = INIT_DB_URLS[index];
+      log.info(`[bootstrap] Trying: ${url}`);
+
+      const curlExe = 'C:\\Windows\\System32\\curl.exe';
+      execFile(curlExe, ['-L', '-s', '-o', dbPath, '--max-time', '60', url], { timeout: 65000 }, (err, stdout, stderr) => {
+        if (err || !fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
+          log.warn(`[bootstrap] Failed: ${err ? err.message : 'empty file'}`);
+          tryDownload(index + 1);
+          return;
+        }
+
+        // Validate SQLite header
+        try {
+          const fd = fs.openSync(dbPath, 'r');
+          const buf = Buffer.alloc(16);
+          fs.readSync(fd, buf, 0, 16, 0);
+          fs.closeSync(fd);
+          const header = buf.toString('utf8');
+          if (!header.startsWith('SQLite format 3')) {
+            log.error(`[bootstrap] Invalid DB file, header: ${header}`);
+            fs.unlinkSync(dbPath);
+            tryDownload(index + 1);
+            return;
+          }
+        } catch (e) {
+          log.error(`[bootstrap] Validation error: ${e.message}`);
+          tryDownload(index + 1);
+          return;
+        }
+
+        const size = fs.statSync(dbPath).size;
+        log.info(`[bootstrap] Download OK: ${size} bytes from ${url}`);
+        isBootstrapping = false;
+        resolve(true);
+      });
+    };
+
+    tryDownload(0);
   });
-
-  win.on('closed', () => log.info('[bootstrap] Window closed event'));
-  win.on('close', () => log.info('[bootstrap] Window close event'));
-  win.webContents.on('render-process-gone', (_e, details) => {
-    log.error('[bootstrap] RENDERER CRASHED:', details.reason, details.exitCode);
-  });
-  win.webContents.on('did-fail-load', (_e, code, desc) => {
-    log.error('[bootstrap] did-fail-load:', code, desc);
-  });
-
-  log.info('[bootstrap] Loading URL...');
-  win.loadURL('app://localhost/bootstrap.html');
-  win.once('ready-to-show', () => {
-    log.info('[bootstrap] ready-to-show');
-    win.show();
-  });
-
-  log.info('[bootstrap] Starting download...');
-  const ok = await downloadInitDb(dbDir, dbPath, win);
-
-  if (!ok) {
-    // ★ Tip 1: 下載失敗或被關閉，直接退出
-    if (!win.isDestroyed()) win.close();
-    return false;
-  }
-
-  win.close();
-  return true;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -479,7 +489,7 @@ function createTray() {
   }
 
   tray = new Tray(trayIcon);
-  tray.setToolTip('賽爾號戰術模擬器');
+  tray.setToolTip('星爆輔助器');
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -796,17 +806,23 @@ function registerProfileIpc(getDbFn) {
 // ═══════════════════════════════════════════════════════════════
 
 async function registerIpcHandlers() {
+  log.info('[ipc] importing db.js...');
   dbModule = await import('./src/db.js');
+  log.info('[ipc] importing typeCalculator.js...');
   typeCalcModule = await import('./src/typeCalculator.js');
+  log.info('[ipc] importing damageCalculator.js...');
   damageCalcModule = await import('./src/damageCalculator.js');
+  log.info('[ipc] imports done');
 
   const {
-    querySprites, getSpriteById, getDistinctTypes, getStatRange,
+    querySprites, getSpriteById, getDistinctTypes, getDistinctTypeCombinations, getStatRange,
     getAllSpritesAll, getTypeChartAttackTypes, getTypeChartList,
     getAllCollections, getCollectionById, createCollection, updateCollection,
     deleteCollection, reorderCollection, getCollectionItems, addToCollection,
     removeFromCollection, reorderCollectionItem, getSpriteCollections,
-    searchEngravings, getEngravingsFilters, getAllGenericTraits, parseTypes, db: getDb,
+    searchEngravings, getEngravingsFilters, getAllGenericTraits, getMovesetsBySpriteId, parseTypes, db: getDb,
+    insertBattleLog, getBattleLogs, getBattleStats, getBattleSummary,
+    aggregateMeta, getMetaReports,
   } = dbModule;
   const {
     calculateTypeMultiplier,
@@ -848,11 +864,47 @@ async function registerIpcHandlers() {
     if (!verifySender(_e)) return [];
     return getSpriteCollections(Number(id));
   });
+  ipcMain.handle('db:sprites:movesets', (_e, id) => {
+    if (!verifySender(_e)) return [];
+    return getMovesetsBySpriteId(Number(id));
+  });
+
+  // ── Battle Logs ──
+  ipcMain.handle('db:battle:log', (_e, log) => {
+    if (!verifySender(_e)) return null;
+    try { return insertBattleLog(log); } catch { return null; }
+  });
+  ipcMain.handle('db:battle:logs', (_e, limit, offset) => {
+    if (!verifySender(_e)) return [];
+    try { return getBattleLogs(limit, offset); } catch { return []; }
+  });
+  ipcMain.handle('db:battle:stats', (_e) => {
+    if (!verifySender(_e)) return [];
+    try { return getBattleStats(); } catch { return []; }
+  });
+  ipcMain.handle('db:battle:summary', (_e) => {
+    if (!verifySender(_e)) return { total: 0, wins: 0, losses: 0, winRate: '0.0' };
+    try { return getBattleSummary(); } catch { return { total: 0, wins: 0, losses: 0, winRate: '0.0' }; }
+  });
+
+  // ── Meta ──
+  ipcMain.handle('db:meta:aggregate', (_e, season) => {
+    if (!verifySender(_e)) return null;
+    try { return aggregateMeta(season); } catch { return null; }
+  });
+  ipcMain.handle('db:meta:reports', (_e, season, limit) => {
+    if (!verifySender(_e)) return [];
+    try { return getMetaReports(season, limit); } catch { return []; }
+  });
 
   // ── Filters ──
   ipcMain.handle('db:filters:types', (_e) => {
     if (!verifySender(_e)) return [];
     try { return getDistinctTypes(); } catch { return []; }
+  });
+  ipcMain.handle('db:filters:type-combinations', (_e) => {
+    if (!verifySender(_e)) return { single: [], dual: [] };
+    try { return getDistinctTypeCombinations(); } catch { return { single: [], dual: [] }; }
   });
   ipcMain.handle('db:filters:stats', (_e) => {
     if (!verifySender(_e)) return { min_total: 0, max_total: 800 };
@@ -943,6 +995,13 @@ async function registerIpcHandlers() {
     return team1.map(a =>
       team2.map(d => calculateTypeMultiplier(a.types || [], d.types || []))
     );
+  });
+
+  ipcMain.handle('db:full-matchup', (_e, { myTeam, enemyTeam, configs }) => {
+    if (!verifySender(_e)) return {};
+    if (!myTeam || !enemyTeam) throw new Error('myTeam and enemyTeam required');
+    const { calculateFullMatchup } = require('./src/matchupCalculator.js');
+    return calculateFullMatchup(myTeam, enemyTeam, configs || {});
   });
 
   // ── Engravings ──
@@ -1087,128 +1146,162 @@ ipcMain.handle('quit-and-install', (_e) => {
 //  App Ready
 // ═══════════════════════════════════════════════════════════════
 
+let appReady = false;
+
 app.whenReady().then(async () => {
-  const userData = app.getPath('userData');
-
-  // ★ 協議必須第一時間註冊（bootstrap 視窗載入 app://localhost/bootstrap.html）
-  registerAppProtocol();
-
-  if (app.isPackaged) {
-    // 舊版遷移：如果 resourcesPath 有 db（舊安裝檔），先複製過來
-    migrateUserDataFiles(userData);
-
-    // ★ 核心：如果 userData 裡還是沒有 DB，從 jsDelivr 下載
-    const dbPath = path.join(userData, 'db', 'seer.db');
-    if (!fs.existsSync(dbPath)) {
-      const ok = await bootstrapDatabase(userData);
-      if (!ok) { app.quit(); return; }
-    }
-
-    process.env.SEER_DB_PATH = dbPath;
-  } else {
-    delete process.env.SEER_DB_PATH;
-  }
-
-  await registerIpcHandlers();
-  registerSpriteLoader();
-
-  // 4. Create system tray
-  createTray();
-
-  const { x, y, width, height, maximized } = getInitialWindowBounds();
-
-  mainWindow = new BrowserWindow({
-    x, y, width, height,
-    minWidth: 380,
-    minHeight: 500,
-    frame: false,
-    backgroundColor: '#0f1118',
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false,
-    },
-  });
-
-  // 9. Set CSP via webContents session headers
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    if (details.url.startsWith('app://')) {
-      // Don't set CSP for app:// protocol — Chromium doesn't handle it well
-      callback({ responseHeaders: details.responseHeaders });
+  try {
+    // If a real second-instance arrived while we were starting up, focus it and quit
+    if (!gotTheLock && secondInstanceReceived) {
+      log.info('[lock] Second instance detected during startup, quitting');
+      app.quit();
       return;
     }
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' https://seerh5.61.com; " +
-          "img-src 'self' data: file: https://seerh5.61.com blob:; " +
-          "script-src 'self' 'unsafe-inline'; " +
-          "style-src 'self' 'unsafe-inline'; " +
-          "connect-src 'self' https://api.github.com https://objects.githubusercontent.com https://raw.githubusercontent.com; " +
-          "font-src 'self'; " +
-          "object-src 'none'; " +
-          "base-uri 'none'; " +
-          "form-action 'none'; " +
-          "frame-ancestors 'none';"
-        ],
+    if (!gotTheLock) {
+      log.info('[lock] No lock but no second-instance — assuming zombie, proceeding');
+    }
+
+    const userData = app.getPath('userData');
+
+    // ★ 協議必須第一時間註冊
+    registerAppProtocol();
+
+    // ★ Grant storage/clipboard permissions for app:// origin
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+      const allowed = ['storage', 'clipboard-read', 'clipboard-sanitized-write'];
+      callback(allowed.includes(permission));
+    });
+
+    if (app.isPackaged) {
+      // 舊版遷移
+      migrateUserDataFiles(userData);
+
+      const dbPath = path.join(userData, 'db', 'seer.db');
+      if (!fs.existsSync(dbPath)) {
+        log.info('[ready] DB missing, launching bootstrap window...');
+        const ok = await bootstrapWithWindow(userData);
+        if (!ok) { app.quit(); return; }
+      }
+
+      process.env.SEER_DB_PATH = dbPath;
+    } else {
+      delete process.env.SEER_DB_PATH;
+    }
+
+    // ★ Window must exist BEFORE async imports to prevent window-all-closed → app.quit()
+    const { x, y, width, height, maximized } = getInitialWindowBounds();
+
+    mainWindow = new BrowserWindow({
+      x, y, width, height,
+      minWidth: 380,
+      minHeight: 500,
+      frame: false,
+      backgroundColor: '#0f1118',
+      show: false,
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.cjs'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
       },
     });
-  });
 
-  mainWindow.loadURL('app://localhost/index.html');
-
-  mainWindow.once('ready-to-show', () => {
-    if (maximized) mainWindow.maximize();
-    mainWindow.show();
-  });
-
-  // 6. Blur → memory trimming
-  mainWindow.on('blur', () => {
-    if (isPinned) mainWindow?.setOpacity(0.6);
-    trimMemory();
-  });
-  mainWindow.on('focus', () => { mainWindow?.setOpacity(1.0); });
-
-  mainWindow.on('close', (e) => {
-    if (!isQuitting) {
-      e.preventDefault();
-      // 4. Hide to tray instead of quitting
-      if (tray) {
-        mainWindow.hide();
+    // 9. Set CSP via webContents session headers
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      if (details.url.startsWith('app://')) {
+        callback({ responseHeaders: details.responseHeaders });
         return;
       }
-      gracefulShutdown();
-    }
-  });
-
-  mainWindow.webContents.on('did-fail-load', (_e, code, desc) => {
-    if (code === -3) return;
-    log.error('Load failed:', code, desc);
-    setTimeout(() => mainWindow?.loadURL('app://localhost/index.html'), 1000);
-  });
-
-  // 2.5 全域快捷鍵 Alt+Q
-  globalShortcut.register('Alt+Q', () => {
-    if (!mainWindow) return;
-    if (mainWindow.isVisible()) { mainWindow.hide(); }
-    else { mainWindow.show(); mainWindow.focus(); }
-  });
-
-  if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  } else {
-    mainWindow.webContents.on('did-finish-load', () => {
-      setTimeout(() => {
-        autoUpdater.checkForUpdates().catch(() => {});
-      }, 3000);
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self' 'unsafe-inline' https://seerh5.61.com; " +
+            "img-src 'self' data: file: https://seerh5.61.com blob:; " +
+            "script-src 'self' 'unsafe-inline'; " +
+            "style-src 'self' 'unsafe-inline'; " +
+            "connect-src 'self' https://api.github.com https://objects.githubusercontent.com https://raw.githubusercontent.com; " +
+            "font-src 'self'; " +
+            "object-src 'none'; " +
+            "base-uri 'none'; " +
+            "form-action 'none'; " +
+            "frame-ancestors 'none';"
+          ],
+        },
+      });
     });
-  }
 
-  log.info('App ready');
+    // 6. Blur → memory trimming
+    mainWindow.on('blur', () => {
+      if (isPinned) mainWindow?.setOpacity(0.6);
+      trimMemory();
+    });
+    mainWindow.on('focus', () => { mainWindow?.setOpacity(1.0); });
+
+    mainWindow.on('close', (e) => {
+      if (!isQuitting) {
+        e.preventDefault();
+        if (tray) {
+          mainWindow.hide();
+          return;
+        }
+        gracefulShutdown();
+      }
+    });
+
+    mainWindow.webContents.on('did-fail-load', (_e, code, desc) => {
+      if (code === -3) return;
+      log.error('Load failed:', code, desc);
+      setTimeout(() => mainWindow?.loadURL('app://localhost/index.html'), 1000);
+    });
+
+    mainWindow.webContents.on('console-message', (_e, level, msg) => {
+      if (msg.includes('[preload]') || msg.includes('electronAPI')) {
+        log.info('[renderer]', msg);
+      }
+    });
+
+    // ★ Now safe to do async imports — window exists, event loop stays alive
+    log.info('[ready] Registering IPC handlers...');
+    await registerIpcHandlers();
+    log.info('[ready] IPC handlers done');
+
+    registerSpriteLoader();
+    createTray();
+
+    // 2.5 全域快捷鍵 Alt+Q
+    globalShortcut.register('Alt+Q', () => {
+      if (!mainWindow) return;
+      if (mainWindow.isVisible()) { mainWindow.hide(); }
+      else { mainWindow.show(); mainWindow.focus(); }
+    });
+
+    // ★ Load URL and show window AFTER IPC handlers are registered
+    mainWindow.loadURL('app://localhost/index.html');
+
+    mainWindow.once('ready-to-show', () => {
+      if (maximized) mainWindow.maximize();
+      mainWindow.show();
+    });
+
+    if (isDev) {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+    } else {
+      mainWindow.webContents.on('did-finish-load', () => {
+        setTimeout(() => {
+          autoUpdater.checkForUpdates().catch(() => {});
+        }, 3000);
+      });
+    }
+
+    appReady = true;
+    log.info('App ready');
+  } catch (err) {
+    log.error('FATAL:', err.message, err.stack);
+  }
 });
 
-app.on('window-all-closed', () => gracefulShutdown());
+app.on('window-all-closed', () => {
+  if (!appReady) return;
+  gracefulShutdown();
+});
 app.on('before-quit', () => { isQuitting = true; });

@@ -28,37 +28,37 @@ const STAT_LABELS = {
 export function getNatureMultiplier(nature, stat) {
   if (!nature || stat === 'hp') return 1.0;
 
-  // 勤奮 / hardy: 無修正
-  if (nature === '勤奮') return 1.0;
+  // 5 種中性性格：無修正
+  const NEUTRAL_NATURES = new Set(['勤奮', '實幹', '坦率', '害羞', '浮躁']);
+  if (NEUTRAL_NATURES.has(nature)) return 1.0;
 
-  // 賽爾號 25 種性格，每種影響一項+10%、一項-10%
-  // 此處僅列出常見性格，未列出的回退 1.0
+  // 賽爾號 25 種性格（20 種有修正 + 5 種中性）
   const NATURE_MAP = {
     // +攻擊
     '孤獨': { up: 'atk', down: 'def' },
-    '固執': { up: 'atk', down: 'spdef' },
-    '頑皮': { up: 'atk', down: 'speed' },
-    '勇敢': { up: 'atk', down: 'spatk' },
+    '勇敢': { up: 'atk', down: 'speed' },
+    '固執': { up: 'atk', down: 'spatk' },
+    '調皮': { up: 'atk', down: 'spdef' },
     // +防禦
     '大膽': { up: 'def', down: 'atk' },
-    '淘氣': { up: 'def', down: 'spatk' },
-    '悠闲': { up: 'def', down: 'speed' },
-    '樂天': { up: 'def', down: 'spdef' },
+    '頑皮': { up: 'def', down: 'spatk' },
+    '無慮': { up: 'def', down: 'spdef' },
+    '悠閒': { up: 'def', down: 'speed' },
     // +特攻
-    '內斂': { up: 'spatk', down: 'atk' },
-    '保守': { up: 'spatk', down: 'def' },
+    '保守': { up: 'spatk', down: 'atk' },
+    '穩重': { up: 'spatk', down: 'def' },
+    '馬虎': { up: 'spatk', down: 'spdef' },
     '冷靜': { up: 'spatk', down: 'speed' },
-    '溫和': { up: 'spatk', down: 'spdef' },
     // +特防
-    '溫順': { up: 'spdef', down: 'atk' },
-    '慎重': { up: 'spdef', down: 'def' },
-    '自大': { up: 'spdef', down: 'spatk' },
-    '沉著': { up: 'spdef', down: 'speed' },
+    '沉著': { up: 'spdef', down: 'atk' },
+    '溫順': { up: 'spdef', down: 'def' },
+    '慎重': { up: 'spdef', down: 'spatk' },
+    '狂妄': { up: 'spdef', down: 'speed' },
     // +速度
     '膽小': { up: 'speed', down: 'atk' },
-    '開朗': { up: 'speed', down: 'spatk' },
     '急躁': { up: 'speed', down: 'def' },
     '天真': { up: 'speed', down: 'spdef' },
+    '開朗': { up: 'speed', down: 'spatk' },
   };
 
   const info = NATURE_MAP[nature];

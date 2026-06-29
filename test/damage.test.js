@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateDamage, calculateAllSkillsDamage } from '../src/damageCalculator.js';
+import { calculateDamage, calculateAllSkillsDamage, resolveStats, resolveTraitEffect } from '../src/damageCalculator.js';
 
 /**
  * 傷害公式校準測試
@@ -242,12 +242,12 @@ describe('calculateDamage — 固定傷害 / 百分比', () => {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  測試組 7：Bilibili 實測傷害校準（可擴充模板）
+//  測試組 7：Bilibili 實測傷害校準
 // ═══════════════════════════════════════════════════════════
 
 describe('calculateAllSkillsDamage — Bilibili 實測校準', () => {
   /**
-   * 校準測試模板
+   * 校準測試
    *
    * 參數來源：Bilibili 對戰影片截圖或實測數據
    * 每筆案例需提供：
@@ -256,57 +256,9 @@ describe('calculateAllSkillsDamage — Bilibili 實測校準', () => {
    *   - params: 等級/IV/EV/性格/能力階級/增減傷
    *   - expectedDamage: 實測傷害值（必須落在 min~max 之間）
    *
-   * 擴充方式：
-   *   在 BILIBILI_CASES 陣列中新增一筆即可自動納入測試。
+   * 目前無已校準案例，此測試組為空。
+   * 如有實測數據，可在此處新增 it() 區塊。
    */
-
-  const BILIBILI_CASES = [
-    // ── 案例模板 ──
-    // 取消下方註解並填入實際數據：
-    //
-    // {
-    //   name: '譜尼 vs 魔靈王 — Bilibili 影片截圖',
-    //   attacker: mockSprite(
-    //     { hp: 165, atk: 70, def: 110, spatk: 145, spdef: 110, speed: 130 },
-    //     ['聖靈']
-    //   ),
-    //   defender: mockSprite(
-    //     { hp: 170, atk: 130, def: 100, spatk: 90, spdef: 100, speed: 80 },
-    //     ['暗影', '超能']
-    //   ),
-    //   skills: [
-    //     { id: 1, name: '聖靈之力', power: 150, category: '特殊', type: '聖靈', accuracy: 95 },
-    //   ],
-    //   params: {
-    //     attackerLevel: 100,
-    //     defenderLevel: 100,
-    //     attackerNature: '保守',
-    //     defenderNature: '大膽',
-    //     attackerEVs: { spatk: 252 },
-    //     defenderEVs: { def: 252 },
-    //     attackerIVs: { spatk: 31 },
-    //     defenderIVs: { def: 31 },
-    //     attackerRanks: {},
-    //     defenderRanks: {},
-    //   },
-    //   options: {},
-    //   expectedDamage: 380,
-    // },
-  ];
-
-  for (const tc of BILIBILI_CASES) {
-    it(tc.name, () => {
-      const results = calculateAllSkillsDamage(
-        tc.attacker, tc.defender, tc.skills, tc.params
-      );
-      assert.ok(results.length > 0, '應至少有一個技能結果');
-      const { min, max } = results[0].damage;
-      assert.ok(
-        tc.expectedDamage >= min && tc.expectedDamage <= max,
-        `實測傷害 ${tc.expectedDamage} 不在計算區間 [${min}, ${max}] 內`
-      );
-    });
-  }
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -478,5 +430,155 @@ describe('calculateAllSkillsDamage — 能力等級', () => {
     });
     // 物攻等級不影響特攻技能
     assert.equal(ranked[0].damage.avg, base[0].damage.avg);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  測試組 11：resolveStats / resolveTraitEffect export
+// ═══════════════════════════════════════════════════════════
+
+describe('resolveStats / resolveTraitEffect — export 驗證', () => {
+  it('resolveStats 回傳正確能力值', () => {
+    const sprite = mockSprite({ hp: 165, atk: 70, def: 110, spatk: 145, spdef: 110, speed: 130 }, ['水']);
+    const stats = resolveStats(sprite, { level: 100 });
+    assert.ok(stats.hp > 0, 'hp 應 > 0');
+    assert.ok(stats.atk > 0, 'atk 應 > 0');
+    assert.ok(stats.spatk > 0, 'spatk 應 > 0');
+  });
+
+  it('resolveTraitEffect 無輸入時回傳空值', () => {
+    const r = resolveTraitEffect(null, null);
+    assert.equal(r.typeBonus, 0);
+    assert.equal(r.atkTypeBonus, 0);
+    assert.equal(r.damageReduction, 0);
+  });
+
+  it('resolveTraitEffect 正確解析屬性增傷', () => {
+    const cache = [
+      { id: 1, name: '流水', category: '屬性增傷', element_type: '水', custom_values: '[5,6,7,8,12,14]' },
+    ];
+    const r = resolveTraitEffect({ traitId: 1, starLevel: 0 }, cache);
+    assert.equal(r.typeBonus, 0.05);
+    assert.equal(r.elementType, '水');
+  });
+
+  it('resolveTraitEffect 正確解析堅硬減傷', () => {
+    const cache = [
+      { id: 48, name: '坚硬', category: '面板機率', element_type: null, custom_values: '[5,6,8,10,9,10]' },
+    ];
+    const r = resolveTraitEffect({ traitId: 48, starLevel: 3 }, cache);
+    assert.equal(r.damageReduction, 0.10);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  測試組 12：百分比傷害 / 最低傷害 / 隨機範圍
+// ═══════════════════════════════════════════════════════════
+
+describe('calculateDamage — percentDamage / minDamage / random range', () => {
+  it('percentDamage 不影響 calculateDamage（在外部處理）', () => {
+    // percentDamage 由 calculateAllSkillsDamage 在外部計算
+    // calculateDamage 本身不處理百分比
+    const result = calculateDamage({
+      level: 100, power: 100, attack: 200, defense: 100,
+      attackTypes: ['火'], defendTypes: ['普通'], skillType: '普通',
+      options: { percentDamage: 0.3 },
+    });
+    // STAB=1 (火≠普通), type=1: min=floor(170*217/255)=144
+    assert.ok(result.min > 0);
+    assert.equal(result.min, 144);
+  });
+
+  it('minDamage floor 生效', () => {
+    const result = calculateDamage({
+      level: 100, power: 10, attack: 10, defense: 999,
+      attackTypes: ['普通'], defendTypes: ['普通'], skillType: '普通',
+      options: { minDamage: 50 },
+    });
+    assert.ok(result.min >= 50, `min ${result.min} 應 >= 50`);
+  });
+
+  it('自訂 randomMin/randomMax 範圍', () => {
+    const result = calculateDamage({
+      level: 100, power: 100, attack: 200, defense: 100,
+      attackTypes: ['火'], defendTypes: ['普通'], skillType: '普通',
+      options: { randomMin: 0.9, randomMax: 1.0 },
+    });
+    // baseDamage=170, STAB=1 (火≠普通), type=1
+    // min = floor(170*0.9) = 153
+    // max = floor(170*1.0) = 170
+    assert.equal(result.min, 153);
+    assert.equal(result.max, 170);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  測試組 13：calculateAllSkillsDamage 整合測試
+// ═══════════════════════════════════════════════════════════
+
+describe('calculateAllSkillsDamage — 整合測試', () => {
+  const ATTK = mockSprite({ hp: 165, atk: 100, def: 100, spatk: 150, spdef: 100, speed: 130 }, ['水']);
+  const DEF = mockSprite({ hp: 300, atk: 100, def: 120, spatk: 100, spdef: 120, speed: 80 }, ['火']);
+  const SKILLS = [
+    { id: 1, name: '水槍', power: 100, category: '特殊', type: '水' },
+    { id: 2, name: '鐵頭', power: 80, category: '物攻', type: '普通' },
+  ];
+
+  it('回傳結果數 = 有威力的技能數', () => {
+    const results = calculateAllSkillsDamage(ATTK, DEF, SKILLS, {
+      attackerLevel: 100, defenderLevel: 100,
+    });
+    assert.equal(results.length, 2);
+  });
+
+  it('每個結果包含 damage / hpPercentage / ohko', () => {
+    const results = calculateAllSkillsDamage(ATTK, DEF, SKILLS, {
+      attackerLevel: 100, defenderLevel: 100,
+    });
+    for (const r of results) {
+      assert.ok(r.damage, '應有 damage');
+      assert.ok(r.hpPercentage, '應有 hpPercentage');
+      assert.ok(r.ohko, '應有 ohko');
+      assert.ok(['guaranteed', 'chance', 'impossible'].includes(r.ohko.status));
+    }
+  });
+
+  it('無威力技能時回傳空陣列', () => {
+    const noPowerSkills = [{ id: 99, name: '保護', power: 0, category: '變化', type: '普通' }];
+    const results = calculateAllSkillsDamage(ATTK, DEF, noPowerSkills, {
+      attackerLevel: 100, defenderLevel: 100,
+    });
+    assert.equal(results.length, 0);
+  });
+
+  it('固定傷害選項：所有技能造成相同傷害', () => {
+    const results = calculateAllSkillsDamage(ATTK, DEF, SKILLS, {
+      attackerLevel: 100, defenderLevel: 100,
+      options: { fixedDamage: 999 },
+    });
+    for (const r of results) {
+      assert.equal(r.damage.min, 999);
+      assert.equal(r.damage.max, 999);
+    }
+  });
+
+  it('OHKO 分析：確一判定（高傷害 vs 低HP）', () => {
+    const weakDef = mockSprite({ hp: 10, atk: 10, def: 10, spatk: 10, spdef: 10, speed: 10 }, ['普通']);
+    const strongAtk = mockSprite({ hp: 200, atk: 200, def: 100, spatk: 200, spdef: 100, speed: 130 }, ['水']);
+    const bigSkill = [{ id: 1, name: '大招', power: 150, category: '特殊', type: '水' }];
+    const results = calculateAllSkillsDamage(strongAtk, weakDef, bigSkill, {
+      attackerLevel: 100, defenderLevel: 100,
+    });
+    assert.equal(results[0].ohko.status, 'guaranteed');
+  });
+
+  it('OHKO 分析：無法確一（低傷害 vs 高HP）', () => {
+    const tankDef = mockSprite({ hp: 999, atk: 10, def: 200, spatk: 10, spdef: 200, speed: 10 }, ['普通']);
+    const weakAtk = mockSprite({ hp: 100, atk: 30, def: 100, spatk: 30, spdef: 100, speed: 50 }, ['水']);
+    const weakSkill = [{ id: 1, name: '弱招', power: 40, category: '特殊', type: '水' }];
+    const results = calculateAllSkillsDamage(weakAtk, tankDef, weakSkill, {
+      attackerLevel: 50, defenderLevel: 100,
+    });
+    assert.equal(results[0].ohko.status, 'impossible');
   });
 });

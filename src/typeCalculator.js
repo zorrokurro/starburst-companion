@@ -1,4 +1,4 @@
-import { db as getDb } from './db.js';
+import { getDb } from './db.js';
 
 let typeChartCache = null;
 
@@ -111,36 +111,6 @@ export function getTypeEffectivenessAgainst(defendTypes) {
       immune.push({ type: attackType, multiplier });
     } else {
       normal.push({ type: attackType, multiplier });
-    }
-  }
-  
-  return { superEffective, notEffective, immune, normal };
-}
-
-/**
- * Get all type effectiveness relationships for a given attack type(s)
- * @param {string[]} attackTypes - Attack type(s)
- * @returns {{ superEffective: Array, notEffective: Array, immune: Array }}
- */
-export function getTypeEffectivenessFrom(attackTypes) {
-  const allTypes = Object.keys(getTypeChart());
-  
-  const superEffective = [];
-  const notEffective = [];
-  const immune = [];
-  const normal = [];
-  
-  for (const defendType of allTypes) {
-    const multiplier = calculateTypeMultiplier(attackTypes, [defendType]);
-    
-    if (multiplier >= 2) {
-      superEffective.push({ type: defendType, multiplier });
-    } else if (multiplier > 0 && multiplier < 1) {
-      notEffective.push({ type: defendType, multiplier });
-    } else if (multiplier === 0) {
-      immune.push({ type: defendType, multiplier });
-    } else {
-      normal.push({ type: defendType, multiplier });
     }
   }
   

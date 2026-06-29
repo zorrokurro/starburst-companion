@@ -139,7 +139,17 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 }
 .order-btn:hover { color: var(--text); }
 
-.type-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+.type-chips::-webkit-scrollbar { width: 6px; }
+.type-chips::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .type-chip {
   padding: 3px 10px;
   border-radius: 12px;
@@ -152,6 +162,80 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 }
 .type-chip.active { opacity: 1; border-color: rgba(255,255,255,0.3); }
 .type-chip:hover { opacity: 0.85; }
+
+/* ── Filter Tabs ── */
+.filter-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.filter-tab {
+  padding: 6px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.filter-tab:hover { color: var(--text); }
+.filter-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Single Type Chips (placeholder for icons) ── */
+.type-chip-single {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.type-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* ── Dual Type Groups ── */
+.dual-type-group {
+  width: 100%;
+  margin-bottom: 2px;
+}
+.dual-type-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 4px 0 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.dual-type-group-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.type-chip-dual {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+}
+.type-chip-dual.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.dual-type-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
 
 .checkbox-group { display: flex; gap: 12px; }
 .checkbox-group label { font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted); }
@@ -1187,19 +1271,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 .meta-check-label { font-size: 12px; color: #a78bfa; font-weight: 600; margin-right: 4px; }
 
 /* ── Skill Tag Badges ── */
-.skill-tag-badge {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-.tag-消強 { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid rgba(76,175,80,0.4); }
-.tag-控場 { background: rgba(224,85,85,0.2); color: #e05555; border: 1px solid rgba(224,85,85,0.4); }
-.tag-回血 { background: rgba(52,152,219,0.2); color: #3498db; border: 1px solid rgba(52,152,219,0.4); }
+/* Base class and all 14 tag colors defined at line ~1337 */
 
 /* ── Radar Chart ── */
 .radar-charts-row {
@@ -1234,7 +1306,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   margin-top: 8px;
 }
 
-/* ── Skill Effect Tags ── */
+/* ── Skill Effect Tags (14 tags, color-coded by category) ── */
 .skill-tag-badge {
   display: inline-block;
   padding: 1px 6px;
@@ -1245,9 +1317,24 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   vertical-align: middle;
   line-height: 1.5;
 }
-.skill-tag-badge.tag-消強 { background: rgba(224,85,85,0.2); color: #e05555; border: 1px solid rgba(224,85,85,0.3); }
-.skill-tag-badge.tag-控場 { background: rgba(155,89,182,0.2); color: #bb86fc; border: 1px solid rgba(155,89,182,0.3); }
-.skill-tag-badge.tag-回血 { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); }
+/* 🔴 攻擊色系 */
+.skill-tag-badge.tag-固傷   { background: rgba(224,85,85,0.15); color: #e05555; border: 1px solid rgba(224,85,85,0.3); }
+.skill-tag-badge.tag-吸血   { background: rgba(192,57,43,0.15); color: #c0392b; border: 1px solid rgba(192,57,43,0.3); }
+.skill-tag-badge.tag-多段   { background: rgba(230,126,34,0.15); color: #e67e22; border: 1px solid rgba(230,126,34,0.3); }
+.skill-tag-badge.tag-穿透   { background: rgba(241,196,15,0.15); color: #b7950b; border: 1px solid rgba(241,196,15,0.3); }
+/* 🔵 防禦色系 */
+.skill-tag-badge.tag-回血   { background: rgba(52,152,219,0.15); color: #3498db; border: 1px solid rgba(52,152,219,0.3); }
+.skill-tag-badge.tag-護盾   { background: rgba(93,173,226,0.15); color: #2e86c1; border: 1px solid rgba(93,173,226,0.3); }
+.skill-tag-badge.tag-獅盔   { background: rgba(26,82,118,0.15); color: #1a5276; border: 1px solid rgba(26,82,118,0.3); }
+/* 🟣 控制色系 */
+.skill-tag-badge.tag-控場   { background: rgba(187,134,252,0.15); color: #bb86fc; border: 1px solid rgba(187,134,252,0.3); }
+.skill-tag-badge.tag-PP干擾 { background: rgba(125,102,8,0.15); color: #7d6608; border: 1px solid rgba(125,102,8,0.3); }
+.skill-tag-badge.tag-先制   { background: rgba(244,208,63,0.15); color: #b7950b; border: 1px solid rgba(244,208,63,0.3); }
+/* ⚪ 消除/變化色系 */
+.skill-tag-badge.tag-消強     { background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); }
+.skill-tag-badge.tag-消弱     { background: rgba(158,158,158,0.15); color: #9e9e9e; border: 1px solid rgba(158,158,158,0.3); }
+.skill-tag-badge.tag-自我強化 { background: rgba(200,230,201,0.3); color: #2e7d32; border: 1px solid rgba(46,125,50,0.3); }
+.skill-tag-badge.tag-對手弱化 { background: rgba(189,189,189,0.15); color: #616161; border: 1px solid rgba(189,189,189,0.3); }
 
 /* ── Radar Chart ── */
 .radar-section {
@@ -1287,6 +1374,141 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   margin-bottom: 8px;
   font-weight: 600;
 }
+
+/* ═══════════════════════════════════════════════
+   Matchup Analysis & Ban/Pick
+   ═══════════════════════════════════════════════ */
+.matchup-matrix-threat {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.matchup-matrix-threat th,
+.matchup-matrix-threat td {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+  white-space: nowrap;
+}
+.matchup-matrix-threat th {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.matchup-matrix-threat th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+.matchup-matrix-threat td:first-child {
+  background: var(--bg-surface);
+  font-weight: 600;
+  color: var(--text-muted);
+  position: sticky;
+  left: 0;
+}
+.threat-cell {
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.threat-cell:hover { transform: scale(1.05); }
+.threat-high   { background: rgba(224,85,85,0.25); color: #ff6b6b; }
+.threat-medium { background: rgba(255,200,0,0.15); color: #ffc800; }
+.threat-low    { background: rgba(76,175,80,0.15); color: #66bb6a; }
+.threat-none   { background: transparent; color: var(--text-muted); }
+
+.counter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.counter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+.counter-item .rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 28px;
+  text-align: center;
+}
+.counter-item .names { flex: 1; }
+.counter-item .names .vs { color: var(--text-muted); margin: 0 6px; }
+.counter-item .score {
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+.score-positive { color: var(--success); }
+.score-negative { color: var(--danger); }
+
+.banpick-phase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--accent);
+}
+.banpick-phase.active { border-left-color: var(--success); }
+.banpick-phase.done { border-left-color: var(--text-muted); opacity: 0.7; }
+.banpick-phase .phase-label { font-weight: 700; font-size: 14px; min-width: 100px; }
+.banpick-phase .phase-desc { color: var(--text-muted); font-size: 13px; flex: 1; }
+
+.banpick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.banpick-sprite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 12px;
+  text-align: center;
+}
+.banpick-sprite:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+.banpick-sprite.selected { border-color: var(--success); background: rgba(76,175,80,0.1); }
+.banpick-sprite.banned { border-color: var(--danger); background: rgba(224,85,85,0.1); opacity: 0.5; }
+.banpick-sprite.picked { border-color: var(--accent); background: rgba(108,140,255,0.1); }
+.banpick-sprite .sprite-name { font-weight: 600; margin-top: 4px; }
+.banpick-sprite .sprite-types { color: var(--text-muted); font-size: 11px; }
+
+.banpick-log {
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 12px;
+  font-family: monospace;
+}
+.banpick-log .log-entry { padding: 3px 0; border-bottom: 1px solid var(--border); }
+.banpick-log .log-ban { color: var(--danger); }
+.banpick-log .log-pick { color: var(--accent); }
 
 /* ═══════════════════════════════════════════════
    MetaTFT Narrow Breakpoint (Electron sidebar)

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>賽爾號戰術模擬器 — 初始化</title>
+  <title>星爆輔助器 — 初始化</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -90,7 +90,7 @@
 <body>
   <div class="container">
     <div class="icon">&#x1F680;</div>
-    <h1>賽爾號戰術模擬器</h1>
+    <h1>星爆輔助器</h1>
     <p class="subtitle">首次啟動，正在初始化資料庫…</p>
 
     <div id="progress-section">
@@ -151,7 +151,10 @@
     });
 
     retryBtn.addEventListener('click', () => {
-      window.location.reload();
+      errorSection.style.display = 'none';
+      errorSectionWrap.style.display = 'block';
+      detailEl.textContent = '重試中…';
+      window.electronAPI.retryBootstrap();
     });
   </script>
 </body>

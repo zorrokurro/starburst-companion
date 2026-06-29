@@ -1,6 +1,8 @@
+try {
 const { contextBridge, ipcRenderer } = require('electron');
+console.log('[preload] modules loaded');
 
-contextBridge.exposeInMainWorld('electronAPI', {
+const api = {
   // ── Window controls ──
   minimize: () => ipcRenderer.send('minimize-window'),
   close: () => ipcRenderer.send('close-window'),
@@ -54,11 +56,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startDownload: () => ipcRenderer.invoke('start-download'),
   quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
 
-  // ── 1.3 Data patch notification ──
-  onDataPatched: (callback) => {
-    ipcRenderer.on('data-patched', (_event, data) => callback(data));
-  },
-
   // ── Data update (jsDelivr) ──
   checkDataUpdate: () => ipcRenderer.invoke('data:update-check'),
   applyDataUpdate: () => ipcRenderer.invoke('data:update-apply'),
@@ -73,4 +70,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onBootstrapProgress: (cb) => ipcRenderer.on('bootstrap:progress', (_e, data) => cb(data)),
   onBootstrapComplete: (cb) => ipcRenderer.on('bootstrap:complete', () => cb()),
   onBootstrapError: (cb) => ipcRenderer.on('bootstrap:error', (_e, data) => cb(data)),
-});
+  retryBootstrap: () => ipcRenderer.send('bootstrap:retry'),
+};
+
+contextBridge.exposeInMainWorld('electronAPI', api);
+console.log('[preload] electronAPI exposed OK, dbQuery:', typeof api.dbQuery);
+} catch (err) {
+  console.error('[preload] FATAL:', err.message, err.stack);
+}

@@ -18,26 +18,30 @@ const TeamSim = (() => {
 
   const NATURE_OPTIONS = [
     { value: '', label: '勤奮（無修正）' },
+    { value: '實幹', label: '實幹（無修正）' },
+    { value: '坦率', label: '坦率（無修正）' },
+    { value: '害羞', label: '害羞（無修正）' },
+    { value: '浮躁', label: '浮躁（無修正）' },
     { value: '孤獨', label: '孤獨 +攻擊 -防禦' },
-    { value: '固執', label: '固執 +攻擊 -特防' },
-    { value: '頑皮', label: '頑皮 +攻擊 -速度' },
-    { value: '勇敢', label: '勇敢 +攻擊 -特攻' },
+    { value: '勇敢', label: '勇敢 +攻擊 -速度' },
+    { value: '固執', label: '固執 +攻擊 -特攻' },
+    { value: '調皮', label: '調皮 +攻擊 -特防' },
     { value: '大膽', label: '大膽 +防禦 -攻擊' },
-    { value: '淘氣', label: '淘氣 +防禦 -特攻' },
+    { value: '頑皮', label: '頑皮 +防禦 -特攻' },
+    { value: '無慮', label: '無慮 +防禦 -特防' },
     { value: '悠閒', label: '悠閒 +防禦 -速度' },
-    { value: '樂天', label: '樂天 +防禦 -特防' },
-    { value: '內斂', label: '內斂 +特攻 -攻擊' },
-    { value: '保守', label: '保守 +特攻 -防禦' },
+    { value: '保守', label: '保守 +特攻 -攻擊' },
+    { value: '穩重', label: '穩重 +特攻 -防禦' },
+    { value: '馬虎', label: '馬虎 +特攻 -特防' },
     { value: '冷靜', label: '冷靜 +特攻 -速度' },
-    { value: '溫和', label: '溫和 +特攻 -特防' },
-    { value: '溫順', label: '溫順 +特防 -攻擊' },
-    { value: '慎重', label: '慎重 +特防 -防禦' },
-    { value: '自大', label: '自大 +特防 -特攻' },
-    { value: '沉著', label: '沉著 +特防 -速度' },
+    { value: '沉著', label: '沉著 +特防 -攻擊' },
+    { value: '溫順', label: '溫順 +特防 -防禦' },
+    { value: '慎重', label: '慎重 +特防 -特攻' },
+    { value: '狂妄', label: '狂妄 +特防 -速度' },
     { value: '膽小', label: '膽小 +速度 -攻擊' },
-    { value: '開朗', label: '開朗 +速度 -特攻' },
     { value: '急躁', label: '急躁 +速度 -防禦' },
     { value: '天真', label: '天真 +速度 -特防' },
+    { value: '開朗', label: '開朗 +速度 -特攻' },
   ];
 
   const STAT_KEYS = ['hp', 'atk', 'def', 'spatk', 'spdef', 'speed'];
@@ -1498,6 +1502,263 @@ const TeamSim = (() => {
     _origSaveTeam();
   }
 
+  // ═══════════════════════════════════════════════
+  //  對位分析（Matchup Analysis）
+  // ═══════════════════════════════════════════════
+
+  let _lastMatchupResult = null;
+
+  function runMatchupAnalysis() {
+    const myTeamFiltered = myTeam.filter(Boolean);
+    const enemyTeamFiltered = enemyTeam.filter(Boolean);
+    if (myTeamFiltered.length === 0 || enemyTeamFiltered.length === 0) {
+      alert('請先加入雙方精靈');
+      return;
+    }
+    const btn = document.getElementById('ts-matchupBtn');
+    const status = document.getElementById('ts-matchupStatus');
+    btn.disabled = true;
+    status.textContent = '計算中...';
+
+    const myConfigs = myTeamFiltered.map(s => ({
+      level: s.level || 100, ivs: s.ivs, evs: s.evs, nature: s.nature,
+      extraStats: s.extraStats, abilityRanks: s.abilityRanks,
+    }));
+    const enemyConfigs = enemyTeamFiltered.map(s => ({
+      level: s.level || 100, ivs: s.ivs, evs: s.evs, nature: s.nature,
+      extraStats: s.extraStats, abilityRanks: s.abilityRanks,
+    }));
+
+    API.invoke('db:full-matchup', {
+      myTeam: myTeamFiltered,
+      enemyTeam: enemyTeamFiltered,
+      configs: { my: myConfigs, enemy: enemyConfigs },
+    }).then(result => {
+      _lastMatchupResult = result;
+      renderMatchupAnalysis(result, myTeamFiltered, enemyTeamFiltered);
+      btn.disabled = false;
+      status.textContent = `${myTeamFiltered.length}x${enemyTeamFiltered.length} 對位分析完成`;
+    }).catch(err => {
+      btn.disabled = false;
+      status.textContent = '計算失敗';
+      console.error(err);
+    });
+  }
+
+  function renderMatchupAnalysis(result, myTeamFiltered, enemyTeamFiltered) {
+    const container = document.getElementById('ts-matchupResults');
+    const { matrix, bestCounters, bestTargets } = result;
+    let html = '';
+
+    // NxM 威脅矩陣
+    html += '<div style="overflow-x:auto;margin-bottom:16px;">';
+    html += '<table class="matchup-matrix-threat">';
+      html += `<thead><tr><th></th>`;
+    for (const e of enemyTeamFiltered) {
+      const types = Array.isArray(e.types) ? e.types : JSON.parse(e.types || '[]');
+      html += `<th>${e.name_zh || '?'}<br><span style="font-size:10px;color:var(--text-muted)">${types.map(t => typeBadgeHTML(t)).join('')}</span></th>`;
+    }
+    html += '</tr></thead><tbody>';
+    for (let i = 0; i < myTeamFiltered.length; i++) {
+      const myTypes = Array.isArray(myTeamFiltered[i].types) ? myTeamFiltered[i].types : JSON.parse(myTeamFiltered[i].types || '[]');
+      html += `<tr><td>${myTeamFiltered[i].name_zh || '?'}<br><span style="font-size:10px">${myTypes.map(t => typeBadgeHTML(t)).join('')}</span></td>`;
+      for (let j = 0; j < enemyTeamFiltered.length; j++) {
+        const cell = matrix[i][j];
+        const atk = cell.atkThreat;
+        const def = cell.defThreat;
+        const diff = atk - def;
+        const cls = diff >= 30 ? 'threat-high' : diff >= 10 ? 'threat-medium' : diff >= -10 ? 'threat-low' : 'threat-none';
+        html += `<td><div class="threat-cell ${cls}" onclick="TeamSim.showDamageDetail(${myTeam.indexOf(myTeamFiltered[i])},${enemyTeam.indexOf(enemyTeamFiltered[j])})">${atk}</div><div style="font-size:10px;color:var(--text-muted)">vs ${def}</div></td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table></div>';
+
+    // 最佳對位推薦
+    html += '<h3 style="color:var(--accent);margin:12px 0 8px;">最佳派出建議</h3>';
+    html += '<div class="counter-list">';
+    const sorted = [...bestCounters].sort((a, b) => b.score - a.score);
+    for (let idx = 0; idx < sorted.length; idx++) {
+      const c = sorted[idx];
+      const myName = myTeamFiltered[c.myIndex]?.name_zh || '?';
+      const enemyName = enemyTeamFiltered[c.enemyIndex]?.name_zh || '?';
+      const m = matrix[c.myIndex][c.enemyIndex];
+      const scoreCls = c.score >= 0 ? 'score-positive' : 'score-negative';
+      html += `<div class="counter-item">
+        <div class="rank">#${idx + 1}</div>
+        <div class="names"><strong>${myName}</strong><span class="vs">vs</span><strong>${enemyName}</strong></div>
+        <div style="font-size:12px;color:var(--text-muted)">${m.bestAtkSkill?.skill.name || '—'}</div>
+        <div class="score ${scoreCls}">${c.score >= 0 ? '+' : ''}${c.score}</div>
+      </div>`;
+    }
+    html += '</div>';
+
+    container.innerHTML = html;
+    document.getElementById('ts-matchupAnalysisCard').style.display = '';
+  }
+
+  // ═══════════════════════════════════════════════
+  //  Ban/Pick 模擬
+  // ═══════════════════════════════════════════════
+
+  let _banPickState = null;
+
+  function startBanPick() {
+    const myPool = myTeam.filter(Boolean);
+    const enemyPool = enemyTeam.filter(Boolean);
+    if (myPool.length === 0 || enemyPool.length === 0) {
+      alert('請先加入雙方精靈池（建議各 6+ 隻）');
+      return;
+    }
+    _banPickState = {
+      phase: 'ban',       // ban → pick → done
+      myPool: [...myPool],
+      enemyPool: [...enemyPool],
+      myBans: [],
+      enemyBans: [],
+      myPicks: [],
+      enemyPicks: [],
+      log: [],
+      turn: 0,            // 0=enemy ban, 1=my ban, 2+= alternating picks
+    };
+    document.getElementById('ts-banPickReset').style.display = '';
+    document.getElementById('ts-banPickCard').style.display = '';
+    renderBanPick();
+  }
+
+  function resetBanPick() {
+    _banPickState = null;
+    document.getElementById('ts-banPickResults').innerHTML = '';
+    document.getElementById('ts-banPickStatus').textContent = '';
+    document.getElementById('ts-banPickReset').style.display = 'none';
+  }
+
+  function renderBanPick() {
+    const s = _banPickState;
+    if (!s) return;
+    const container = document.getElementById('ts-banPickResults');
+    const statusEl = document.getElementById('ts-banPickStatus');
+    let html = '';
+
+    const totalBans = 3;
+    const myBansDone = s.myBans.length;
+    const enemyBansDone = s.enemyBans.length;
+    const myPicksDone = s.myPicks.length;
+    const enemyPicksDone = s.enemyPicks.length;
+
+    // Phase indicator
+    if (myBansDone < totalBans || enemyBansDone < totalBans) {
+      const whose = enemyBansDone <= myBansDone ? '對方 Ban' : '我方 Ban';
+      const count = Math.max(enemyBansDone, myBansDone) + 1;
+      statusEl.textContent = `${whose} #${count}（共 ${totalBans} 輪）`;
+      html += `<div class="banpick-phase active"><div class="phase-label">Ban 階段</div><div class="phase-desc">${whose}：點擊選擇要 Ban 的精靈</div></div>`;
+    } else if (myPicksDone < 5 || enemyPicksDone < 5) {
+      const whose = enemyPicksDone <= myPicksDone ? '對方 Pick' : '我方 Pick';
+      const count = Math.max(enemyPicksDone, myPicksDone) + 1;
+      statusEl.textContent = `${whose} #${count}（共 5 隻）`;
+      html += `<div class="banpick-phase active"><div class="phase-label">Pick 階段</div><div class="phase-desc">${whose}：點擊選擇要 Pick 的精靈</div></div>`;
+    } else {
+      statusEl.textContent = 'Ban/Pick 完成';
+      html += `<div class="banpick-phase done"><div class="phase-label">完成</div><div class="phase-desc">雙方陣容已確定</div></div>`;
+    }
+
+    // Enemy pool
+    html += '<h4 style="color:var(--text-muted);margin:8px 0 4px;">對方精靈池</h4>';
+    html += '<div class="banpick-grid">';
+    for (let i = 0; i < s.enemyPool.length; i++) {
+      const sp = s.enemyPool[i];
+      if (!sp) continue;
+      const isBanned = s.enemyBans.some(b => b.name_zh === sp.name_zh);
+      const isPicked = s.enemyPicks.some(p => p.name_zh === sp.name_zh);
+      const cls = isBanned ? 'banned' : isPicked ? 'picked' : '';
+      const types = Array.isArray(sp.types) ? sp.types : JSON.parse(sp.types || '[]');
+      const clickAction = !isBanned && !isPicked ? `TeamSim.banPickAction('enemy',${i})` : '';
+      html += `<div class="banpick-sprite ${cls}" ${clickAction ? `onclick="${clickAction}"` : ''}>
+        <div class="sprite-types">${types.map(t => typeBadgeHTML(t)).join('')}</div>
+        <div class="sprite-name">${sp.name_zh || '?'}</div>
+      </div>`;
+    }
+    html += '</div>';
+
+    // My pool
+    html += '<h4 style="color:var(--text-muted);margin:12px 0 4px;">我方精靈池</h4>';
+    html += '<div class="banpick-grid">';
+    for (let i = 0; i < s.myPool.length; i++) {
+      const sp = s.myPool[i];
+      if (!sp) continue;
+      const isBanned = s.myBans.some(b => b.name_zh === sp.name_zh);
+      const isPicked = s.myPicks.some(p => p.name_zh === sp.name_zh);
+      const cls = isBanned ? 'banned' : isPicked ? 'picked' : '';
+      const myTypes = Array.isArray(sp.types) ? sp.types : JSON.parse(sp.types || '[]');
+      const clickAction = !isBanned && !isPicked ? `TeamSim.banPickAction('my',${i})` : '';
+      html += `<div class="banpick-sprite ${cls}" ${clickAction ? `onclick="${clickAction}"` : ''}>
+        <div class="sprite-types">${myTypes.map(t => typeBadgeHTML(t)).join('')}</div>
+        <div class="sprite-name">${sp.name_zh || '?'}</div>
+      </div>`;
+    }
+    html += '</div>';
+
+    // Log
+    if (s.log.length > 0) {
+      html += '<div class="banpick-log">';
+      for (const entry of s.log) {
+        html += `<div class="log-entry ${entry.type === 'ban' ? 'log-ban' : 'log-pick'}">${entry.text}</div>`;
+      }
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function banPickAction(side, index) {
+    const s = _banPickState;
+    if (!s) return;
+    const totalBans = 3;
+
+    // Ban phase
+    if (s.myBans.length < totalBans || s.enemyBans.length < totalBans) {
+      if (s.enemyBans.length <= s.myBans.length) {
+        // Enemy ban turn
+        if (side !== 'enemy') return;
+        const sp = s.enemyPool[index];
+        if (!sp || s.enemyBans.some(b => b.name_zh === sp.name_zh)) return;
+        s.enemyBans.push(sp);
+        s.log.push({ type: 'ban', text: `對方 Ban: ${sp.name_zh}` });
+      } else {
+        // My ban turn
+        if (side !== 'my') return;
+        const sp = s.myPool[index];
+        if (!sp || s.myBans.some(b => b.name_zh === sp.name_zh)) return;
+        s.myBans.push(sp);
+        s.log.push({ type: 'ban', text: `我方 Ban: ${sp.name_zh}` });
+      }
+      renderBanPick();
+      return;
+    }
+
+    // Pick phase
+    const myPicksDone = s.myPicks.length;
+    const enemyPicksDone = s.enemyPicks.length;
+    if (myPicksDone >= 5 && enemyPicksDone >= 5) return;
+
+    if (enemyPicksDone <= myPicksDone) {
+      // Enemy pick turn
+      if (side !== 'enemy') return;
+      const sp = s.enemyPool[index];
+      if (!sp || s.enemyBans.some(b => b.name_zh === sp.name_zh) || s.enemyPicks.some(p => p.name_zh === sp.name_zh)) return;
+      s.enemyPicks.push(sp);
+      s.log.push({ type: 'pick', text: `對方 Pick: ${sp.name_zh}` });
+    } else {
+      // My pick turn
+      if (side !== 'my') return;
+      const sp = s.myPool[index];
+      if (!sp || s.myBans.some(b => b.name_zh === sp.name_zh) || s.myPicks.some(p => p.name_zh === sp.name_zh)) return;
+      s.myPicks.push(sp);
+      s.log.push({ type: 'pick', text: `我方 Pick: ${sp.name_zh}` });
+    }
+    renderBanPick();
+  }
+
   return {
     init, openSpriteSelector, selectSpriteFromModal, addToTeam, removeFromTeam,
     openConfig, saveConfig, closeConfigModal, toggleCollapse, applyEvPreset,
@@ -1507,5 +1768,6 @@ const TeamSim = (() => {
     loadSavedTeam, renameSavedTeam, deleteSavedTeam, clearAll,
     createProfile, renameProfile, deleteProfile, loadProfiles, switchProfile,
     runTacticAdvice,
+    runMatchupAnalysis, startBanPick, resetBanPick, banPickAction,
   };
 })();

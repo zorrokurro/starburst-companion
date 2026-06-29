@@ -79,8 +79,12 @@ function handleSpriteImageError(img) {
     img.dataset.fallbackPhase = '1';
     img.src = `${CDN_HEAD_BASE}/${cnId}.png`;
   } else if (fallbackPhase === 1) {
-    // Phase 1→2: Offline fallback SVG
+    // Phase 1→2: Try BWIKI fallback image
     img.dataset.fallbackPhase = '2';
+    img.src = `/sprites-fallback/${cnId}.png`;
+  } else if (fallbackPhase === 2) {
+    // Phase 2→3: Offline fallback SVG
+    img.dataset.fallbackPhase = '3';
     img.onerror = null;
     img.src = DEFAULT_AVATAR_SVG;
   } else {
@@ -135,6 +139,8 @@ function handleRoute() {
       TypeChart.init();
     } else if (hash === 'team-sim' && typeof TeamSim !== 'undefined') {
       TeamSim.init();
+    } else if (hash === 'battle-log' && typeof BattleLog !== 'undefined') {
+      BattleLog.init();
     }
   }
 }
@@ -157,7 +163,10 @@ const IndexState = {
   maxTotal: null,
   search: '',
   finalOnly: false,
+  playstyle: undefined,
   allTypes: [],
+  typeCombinations: { single: [], dual: [] },
+  filterTab: 'single',
   favoriteSprites: new Set(),
 };
 
@@ -166,6 +175,22 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('[init] DOMContentLoaded');
   console.log('[init] electronAPI available:', !!window.electronAPI);
   console.log('[init] dbQuery available:', !!window.electronAPI?.dbQuery);
+
+  // If preload failed to expose electronAPI, auto-reload once
+  if (!window.electronAPI?.dbQuery) {
+    let count = 0;
+    try { count = parseInt(sessionStorage.getItem('__ipc_reload_count') || '0', 10); } catch {}
+    if (count < 2) {
+      try { sessionStorage.setItem('__ipc_reload_count', String(count + 1)); } catch {}
+      console.warn(`[init] electronAPI missing, auto-reloading (attempt ${count + 1}/2)...`);
+      setTimeout(() => location.reload(), 500);
+      return;
+    }
+    try { sessionStorage.removeItem('__ipc_reload_count'); } catch {}
+    console.error('[init] electronAPI still missing after 2 reloads, giving up');
+  } else {
+    try { sessionStorage.removeItem('__ipc_reload_count'); } catch {}
+  }
 
   // Quick IPC sanity check
   (async () => {
@@ -319,9 +344,10 @@ function initDataUpdateBanner() {
 // ── Filter Options ──
 async function loadFilterOptions() {
   try {
-    const [types, stats] = await Promise.all([API.filters.types(), API.filters.stats()]);
+    const [types, stats, combos] = await Promise.all([API.filters.types(), API.filters.stats(), API.filters.typeCombinations()]);
     IndexState.allTypes = types;
-    renderTypeChips(types);
+    IndexState.typeCombinations = combos;
+    renderTypeChips();
     document.getElementById('stat-min').min = stats.min_total;
     document.getElementById('stat-min').placeholder = stats.min_total;
     document.getElementById('stat-max').max = stats.max_total;
@@ -331,26 +357,84 @@ async function loadFilterOptions() {
   }
 }
 
-function renderTypeChips(types) {
+function renderTypeChips() {
   const container = document.getElementById('type-filters');
-  container.innerHTML = types.map(t =>
-    `<span class="type-chip" data-type="${t}" style="background:${TYPE_COLORS[t] || '#68A090'}">${t}</span>`
-  ).join('');
+  const { filterTab, allTypes, typeCombinations } = IndexState;
+
+  if (filterTab === 'single') {
+    container.innerHTML = typeCombinations.single.map(t =>
+      `<span class="type-chip type-chip-single" data-type="${t}" data-filter-mode="single">
+        <img class="type-icon" src="/types/${t}.png" alt="${t}" onerror="this.style.display='none'">
+      </span>`
+    ).join('');
+  } else if (filterTab === 'dual') {
+    let html = '';
+    for (const group of typeCombinations.dual) {
+      html += `<div class="dual-type-group">`;
+      html += `<div class="dual-type-group-label">${group.group}</div>`;
+      html += `<div class="dual-type-group-items">`;
+      for (const combo of group.combos) {
+        const key = combo.types.sort().join('');
+        html += `<span class="type-chip type-chip-dual" data-type="${combo.types.join(',')}" data-filter-mode="dual">
+          <img class="dual-type-icon" src="/types-dual/${key}.png" alt="${combo.types.join('/')}" onerror="this.style.display='none'">
+        </span>`;
+      }
+      html += `</div></div>`;
+    }
+    container.innerHTML = html;
+  }
 }
 
 function initFilterListeners() {
+  document.getElementById('filter-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    const newTab = tab.dataset.tab;
+    if (newTab === IndexState.filterTab) return;
+    IndexState.filterTab = newTab;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === newTab));
+    IndexState.selectedTypes = [];
+    renderTypeChips();
+    resetAndLoad();
+  });
+
   document.getElementById('type-filters').addEventListener('click', e => {
     const chip = e.target.closest('.type-chip');
     if (!chip) return;
-    const type = chip.dataset.type;
-    if (IndexState.selectedTypes.includes(type)) {
-      IndexState.selectedTypes = IndexState.selectedTypes.filter(t => t !== type);
-    } else if (IndexState.selectedTypes.length >= 2) {
-      IndexState.selectedTypes = [type];
+    const mode = chip.dataset.filterMode;
+    if (mode === 'single') {
+      const type = chip.dataset.type;
+      if (IndexState.selectedTypes.includes(type)) {
+        IndexState.selectedTypes = [];
+      } else {
+        IndexState.selectedTypes = [type];
+      }
+    } else if (mode === 'dual') {
+      const types = chip.dataset.type.split(',');
+      const key = types.join(',');
+      if (IndexState.selectedTypes.join(',') === key) {
+        IndexState.selectedTypes = [];
+      } else {
+        IndexState.selectedTypes = types;
+      }
     } else {
-      IndexState.selectedTypes.push(type);
+      const type = chip.dataset.type;
+      if (IndexState.selectedTypes.includes(type)) {
+        IndexState.selectedTypes = IndexState.selectedTypes.filter(t => t !== type);
+      } else if (IndexState.selectedTypes.length >= 2) {
+        IndexState.selectedTypes = [type];
+      } else {
+        IndexState.selectedTypes.push(type);
+      }
     }
-    document.querySelectorAll('.type-chip').forEach(c => c.classList.toggle('active', IndexState.selectedTypes.includes(c.dataset.type)));
+    document.querySelectorAll('.type-chip').forEach(c => {
+      const cType = c.dataset.type;
+      c.classList.toggle('active',
+        IndexState.filterTab === 'dual'
+          ? cType === IndexState.selectedTypes.join(',')
+          : IndexState.selectedTypes.includes(cType)
+      );
+    });
     resetAndLoad();
   });
 
@@ -390,6 +474,11 @@ function initFilterListeners() {
 
   document.getElementById('final-only').addEventListener('change', e => {
     IndexState.finalOnly = e.target.checked;
+    resetAndLoad();
+  });
+
+  document.getElementById('playstyle-filter').addEventListener('change', e => {
+    IndexState.playstyle = e.target.value || undefined;
     resetAndLoad();
   });
 }
@@ -432,7 +521,10 @@ async function loadSprites(reset = false) {
         sort: IndexState.sort,
         order: IndexState.order,
         types: IndexState.selectedTypes.length ? IndexState.selectedTypes : undefined,
+        singleOnly: IndexState.filterTab === 'single' ? true : undefined,
+        dualOnly: IndexState.filterTab === 'dual' && IndexState.selectedTypes.length === 0 ? true : undefined,
         finalOnly: IndexState.finalOnly || undefined,
+        playstyle: IndexState.playstyle || undefined,
         minTotal: IndexState.minTotal,
         maxTotal: IndexState.maxTotal,
         search: IndexState.search || undefined,
@@ -863,3 +955,119 @@ async function openDetail(id) {
 function closeDetail() {
   document.getElementById('detail-modal').style.display = 'none';
 }
+
+// ════════════ Battle Log Module ════════════
+const BattleLog = {
+  async init() {
+    await this.loadSummary();
+    await this.loadHistory();
+    await this.loadStats();
+    await this.loadMeta();
+  },
+
+  async loadSummary() {
+    try {
+      const s = await API.battle.summary();
+      document.getElementById('bl-totalGames').textContent = s.total;
+      document.getElementById('bl-winRate').textContent = s.winRate + '%';
+      document.getElementById('bl-wins').textContent = s.wins;
+      document.getElementById('bl-losses').textContent = s.losses;
+    } catch (e) { console.error('Load summary failed:', e); }
+  },
+
+  async loadHistory() {
+    try {
+      const logs = await API.battle.logs(50, 0);
+      const el = document.getElementById('bl-history');
+      if (!logs.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無對戰紀錄</div>'; return; }
+      el.innerHTML = logs.map(l => {
+        const resultColor = l.result === 'win' ? '#4caf50' : l.result === 'lose' ? '#f44336' : '#ff9800';
+        const resultText = l.result === 'win' ? '勝' : l.result === 'lose' ? '敗' : '平';
+        let myTeam = [], enemyTeam = [];
+        try { myTeam = JSON.parse(l.my_team); } catch {}
+        try { enemyTeam = JSON.parse(l.enemy_team); } catch {}
+        return `<div style="display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid var(--border);font-size:13px;">
+          <span style="color:${resultColor};font-weight:bold;min-width:20px;">${resultText}</span>
+          <span style="color:var(--text-muted);min-width:80px;">${l.mode || '-'}</span>
+          <span style="flex:1;">${myTeam.join(', ')} vs ${enemyTeam.join(', ')}</span>
+          <span style="color:var(--text-muted);font-size:11px;">${l.timestamp || ''}</span>
+        </div>`;
+      }).join('');
+    } catch (e) { console.error('Load history failed:', e); }
+  },
+
+  async loadStats() {
+    try {
+      const stats = await API.battle.stats();
+      const el = document.getElementById('bl-stats');
+      if (!stats.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無統計資料</div>'; return; }
+      el.innerHTML = stats.slice(0, 30).map(s => {
+        const winRate = s.games > 0 ? (s.wins / s.games * 100).toFixed(1) : '0.0';
+        return `<div style="display:flex;gap:10px;align-items:center;padding:6px;border-bottom:1px solid var(--border);font-size:13px;">
+          <span style="flex:1;font-weight:bold;">${s.name_zh}</span>
+          <span style="color:var(--text-muted);">場次: ${s.games}</span>
+          <span style="color:#4caf50;">勝: ${s.wins}</span>
+          <span style="color:var(--text-muted);">勝率: ${winRate}%</span>
+        </div>`;
+      }).join('');
+    } catch (e) { console.error('Load stats failed:', e); }
+  },
+
+  async record(result) {
+    const myTeamStr = document.getElementById('bl-myTeam').value.trim();
+    const enemyTeamStr = document.getElementById('bl-enemyTeam').value.trim();
+    const mode = document.getElementById('bl-mode').value;
+    if (!myTeamStr || !enemyTeamStr) { alert('請輸入雙方陣容'); return; }
+
+    const resolveNames = async (str) => {
+      const names = str.split(/[,，]/).map(s => s.trim()).filter(Boolean);
+      const ids = [];
+      for (const name of names) {
+        const sprites = await API.sprites.list({ search: name, limit: 1 });
+        if (sprites.data && sprites.data.length > 0) ids.push(sprites.data[0].id);
+      }
+      return ids;
+    };
+
+    const myTeam = await resolveNames(myTeamStr);
+    const enemyTeam = await resolveNames(enemyTeamStr);
+    if (!myTeam.length || !enemyTeam.length) { alert('無法找到對應精靈，請確認名稱正確'); return; }
+
+    try {
+      await API.battle.log({ mode, my_team: myTeam, enemy_team: enemyTeam, result });
+      document.getElementById('bl-myTeam').value = '';
+      document.getElementById('bl-enemyTeam').value = '';
+      await this.init();
+    } catch (e) { alert('記錄失敗: ' + e.message); }
+  },
+
+  async loadMeta() {
+    const season = document.getElementById('bl-metaSeason')?.value || '2026-07';
+    try {
+      const reports = await API.meta.reports(season, 50);
+      const el = document.getElementById('bl-metaList');
+      if (!reports.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無 Meta 資料</div>'; return; }
+      el.innerHTML = reports.map((r, i) => {
+        const pickPct = (r.pick_rate * 100).toFixed(1);
+        const banPct = (r.ban_rate * 100).toFixed(1);
+        const winPct = (r.win_rate * 100).toFixed(1);
+        return `<div style="display:flex;gap:10px;align-items:center;padding:6px;border-bottom:1px solid var(--border);font-size:13px;">
+          <span style="min-width:24px;color:var(--text-muted);">#${i + 1}</span>
+          <span style="flex:1;font-weight:bold;">${r.name_zh}</span>
+          <span style="color:var(--accent);">出場 ${pickPct}%</span>
+          <span style="color:#f44336;">禁用 ${banPct}%</span>
+          <span style="color:#4caf50;">勝率 ${winPct}%</span>
+        </div>`;
+      }).join('');
+    } catch (e) { console.error('Load meta failed:', e); }
+  },
+
+  async refreshMeta() {
+    const season = document.getElementById('bl-metaSeason')?.value || '2026-07';
+    try {
+      await API.meta.aggregate(season);
+      await this.loadMeta();
+    } catch (e) { alert('更新失敗: ' + e.message); }
+  }
+};
+

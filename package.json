@@ -1,87 +1,87 @@
 {
-    "name":  "seer-tactics",
-    "version":  "0.1.0",
-    "description":  "賽爾?�戰術模?�器",
-    "main":  "main.cjs",
-    "type":  "module",
-    "scripts":  {
-                    "start":  "electron .",
-                    "dev":  "electron . --dev",
-                    "rebuild":  "electron-rebuild",
-                    "build":  "electron-builder --win",
-                    "build:dir":  "electron-builder --win --dir",
-                    "serve":  "node src/server.js",
-                    "import:seerh5":  "node src/import-seerh5.js",
-                    "import:advance":  "node src/import-pet-advance.js",
-                    "import:gacha":  "node src/import-gacha-pools.js",
-                    "import:soul-seals":  "node src/import-soul-seals-bwiki.js",
-                    "import:engravings":  "node src/import-engravings.js",
-                    "fetch:effects":  "node src/fetch-skill-effects.js",
-                    "fetch:effects:remote":  "node src/fetch-skill-effects.js --remote",
-                    "init-db":  "node src/init-db.js",
-                    "seed":  "node src/seed-type-chart.js",
-                    "download-sprites":  "node src/download-sprites.js",
-                    "export:dist":  "node src/export-dist-data.cjs",
-                    "test":  "node --test src/**/*.test.js test/**/*.test.js"
-                },
-    "dependencies":  {
-                         "better-sqlite3":  "^12.11.1",
-                         "electron-log":  "^5.4.4",
-                         "electron-updater":  "^6.8.9",
-                         "express":  "^4.21.2",
-                         "fast-xml-parser":  "^4.5.3",
-                         "opencc-js":  "^1.3.1"
-                     },
-    "devDependencies":  {
-                            "electron":  "^35.0.0",
-                            "electron-builder":  "^26.0.0",
-                            "electron-rebuild":  "^3.2.9"
-                        },
-    "build":  {
-                  "appId":  "com.seer.tactics",
-                  "productName":  "賽爾?�戰術模?�器",
-                  "directories":  {
-                                      "output":  "release"
-                                  },
-                  "files":  [
-                                "main.cjs",
-                                "preload.js",
-                                "src/**/*",
-                                "public/**/*",
-                                "!public/sprites/head/**",
-                                "!public/sprites/body/**",
-                                "!node_modules/playwright/**",
-                                "!node_modules/.cache/**",
-                                "!deprecated/**",
-                                "!mw_apk/**",
-                                "!bwiki_data/**",
-                                "!seerh5_data/**",
-                                "!test/**",
-                                "!*.test.js"
-                            ],
-                  "win":  {
-                              "target":  [
-                                             {
-                                                 "target":  "nsis",
-                                                 "arch":  [
-                                                              "x64"
-                                                          ]
-                                             }
-                                         ],
-                              "icon":  "public/icons/icon-512.svg"
-                          },
-                  "nsis":  {
-                               "oneClick":  false,
-                               "allowToChangeInstallationDirectory":  true,
-                               "createDesktopShortcut":  true
-                           },
-                  "extraResources":  [
-
-                                     ],
-                  "publish":  {
-                                  "provider":  "github",
-                                  "owner":  "zorrokurro",
-                                  "repo":  "starburst-companion"
-                              }
-              }
+  "name": "seer-tactics",
+  "version": "0.1.0",
+  "description": "星爆輔助器",
+  "main": "main.cjs",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "rebuild": "electron-rebuild",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir",
+    "serve": "node src/server.js",
+    "import:seerh5": "node src/import-seerh5.js",
+    "import:advance": "node src/import-pet-advance.js",
+    "import:gacha": "node src/import-gacha-pools.js",
+    "import:soul-seals": "node src/import-soul-seals-bwiki.js",
+    "import:engravings": "node src/import-engravings.js",
+    "fetch:effects": "node src/fetch-skill-effects.js",
+    "fetch:effects:remote": "node src/fetch-skill-effects.js --remote",
+    "init-db": "node src/init-db.js",
+    "seed": "node src/seed-type-chart.js",
+    "download-sprites": "node src/download-sprites.js",
+    "export:dist": "node src/export-dist-data.cjs",
+    "test": "node --test test/**/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^4.5.3",
+    "opencc-js": "^1.3.1"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0",
+    "electron-rebuild": "^3.2.9"
+  },
+  "build": {
+    "appId": "com.seer.tactics",
+    "productName": "星爆輔助器",
+    "npmRebuild": false,
+    "artifactName": "seer-tactics-setup-${version}.${ext}",
+    "directories": {
+      "output": "seer-build5"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "src/**/*",
+      "public/**/*",
+      "!public/sprites/head/**",
+      "!public/sprites/body/**",
+      "!node_modules/playwright/**",
+      "!node_modules/.cache/**",
+      "!deprecated/**",
+      "!mw_apk/**",
+      "!bwiki_data/**",
+      "!seerh5_data/**",
+      "!test/**",
+      "!*.test.js"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icons/icon-256.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "extraResources": [],
+    "publish": {
+      "provider": "github",
+      "owner": "zorrokurro",
+      "repo": "starburst-companion"
+    }
+  }
 }

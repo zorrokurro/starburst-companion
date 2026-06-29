@@ -9,6 +9,7 @@ db/*.db-shm
 # Build output
 release/
 dist/
+seer-build*/
 
 # Environment
 .env
@@ -32,6 +33,9 @@ Desktop.ini
 
 # Sprites (download via download-sprites.js or loaded from CDN)
 public/sprites/
+public/sprites-fallback/
+public/types/
+public/types-dual/
 
 # Electron builder cache
 .cache/

@@ -74,7 +74,7 @@ function parseTypes(typesText) {
   }
 }
 
-function buildSpriteQuery({ sort = 'cn_id', order = 'ASC', types, finalOnly, minTotal, maxTotal, search, page = 1, limit = 30, offset }) {
+function buildSpriteQuery({ sort = 'cn_id', order = 'ASC', types, singleOnly, dualOnly, finalOnly, minTotal, maxTotal, search, playstyle, page = 1, limit = 30, offset }) {
   const conditions = [];
   const params = {};
 
@@ -85,6 +85,14 @@ function buildSpriteQuery({ sort = 'cn_id', order = 'ASC', types, finalOnly, min
 
   if (finalOnly) {
     conditions.push(`(s.evolves_to IS NULL OR s.evolves_to = '')`);
+  }
+
+  if (singleOnly) {
+    conditions.push(`json_array_length(s.types) = 1`);
+  }
+
+  if (dualOnly) {
+    conditions.push(`json_array_length(s.types) = 2`);
   }
 
   if (types && types.length > 0) {
@@ -100,6 +108,10 @@ function buildSpriteQuery({ sort = 'cn_id', order = 'ASC', types, finalOnly, min
   if (maxTotal != null && Number.isFinite(maxTotal)) {
     conditions.push(`((COALESCE(s.base_atk,0)+COALESCE(s.base_def,0)+COALESCE(s.base_spatk,0)+COALESCE(s.base_spdef,0)+COALESCE(s.base_speed,0)+COALESCE(s.base_hp,0)) <= @maxTotal)`);
     params.maxTotal = maxTotal;
+  }
+  if (playstyle) {
+    conditions.push(`s.playstyle LIKE @playstyle`);
+    params.playstyle = `%"${playstyle}"%`;
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -232,6 +244,37 @@ function getDistinctTypes() {
   return [...typeSet].sort();
 }
 
+function getDistinctTypeCombinations() {
+  const d = getDb();
+  const rows = d.prepare(`SELECT types FROM sprites WHERE types IS NOT NULL AND types != '[]'`).all();
+  const singleSet = new Set();
+  const dualSet = new Set();
+  for (const row of rows) {
+    const types = parseTypes(row.types);
+    if (types.length === 1) {
+      singleSet.add(types[0]);
+    } else if (types.length === 2) {
+      const sorted = [...types].sort();
+      dualSet.add(sorted[0] + '+' + sorted[1]);
+    }
+  }
+  const single = [...singleSet].sort();
+  const dualMap = {};
+  for (const combo of dualSet) {
+    const [a, b] = combo.split('+');
+    if (!dualMap[a]) dualMap[a] = [];
+    dualMap[a].push({ type: a + '+' + b, types: [a, b] });
+  }
+  for (const key of Object.keys(dualMap)) {
+    dualMap[key].sort((x, y) => x.type.localeCompare(y.type));
+  }
+  const dual = Object.keys(dualMap).sort().map(key => ({
+    group: key,
+    combos: dualMap[key],
+  }));
+  return { single, dual };
+}
+
 function getStatRange() {
   const d = getDb();
   const row = d.prepare(`
@@ -353,16 +396,122 @@ function getAllGenericTraits() {
   return getDb().prepare('SELECT * FROM generic_traits ORDER BY id').all();
 }
 
+function getMovesetsBySpriteId(spriteId) {
+  return getDb().prepare(
+    'SELECT * FROM movesets WHERE sprite_id = ? ORDER BY upvotes DESC'
+  ).all(spriteId);
+}
+
+function insertBattleLog(log) {
+  const d = getDb();
+  const result = d.prepare(
+    'INSERT INTO battle_logs (mode, my_team, enemy_team, result, duration_seconds, key_moments, enemy_hash) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(log.mode, JSON.stringify(log.my_team), JSON.stringify(log.enemy_team), log.result, log.duration_seconds || null, log.key_moments ? JSON.stringify(log.key_moments) : null, log.enemy_hash || null);
+
+  // Update battle_stats
+  const allSprites = [...new Set([...log.my_team, ...log.enemy_team])];
+  for (const sid of allSprites) {
+    const isMy = log.my_team.includes(sid);
+    const existing = d.prepare('SELECT * FROM battle_stats WHERE sprite_id = ?').get(sid);
+    if (existing) {
+      d.prepare('UPDATE battle_stats SET games = games + 1, wins = wins + ?, bans = bans + ? WHERE sprite_id = ?').run(
+        (isMy && log.result === 'win') ? 1 : 0,
+        (isMy && log.result === 'ban') ? 1 : 0,
+        sid
+      );
+    } else {
+      d.prepare('INSERT INTO battle_stats (sprite_id, games, wins, bans) VALUES (?, 1, ?, ?)').run(
+        sid,
+        (isMy && log.result === 'win') ? 1 : 0,
+        (isMy && log.result === 'ban') ? 1 : 0
+      );
+    }
+  }
+
+  return { id: result.lastInsertRowid };
+}
+
+function getBattleLogs(limit = 50, offset = 0) {
+  return getDb().prepare('SELECT * FROM battle_logs ORDER BY timestamp DESC LIMIT ? OFFSET ?').all(limit, offset);
+}
+
+function getBattleStats() {
+  return getDb().prepare(`
+    SELECT bs.*, s.name_zh, s.types
+    FROM battle_stats bs
+    JOIN sprites s ON bs.sprite_id = s.id
+    ORDER BY bs.games DESC
+  `).all();
+}
+
+function getBattleSummary() {
+  const d = getDb();
+  const total = d.prepare('SELECT COUNT(*) as cnt FROM battle_logs').get();
+  const wins = d.prepare("SELECT COUNT(*) as cnt FROM battle_logs WHERE result = 'win'").get();
+  const losses = d.prepare("SELECT COUNT(*) as cnt FROM battle_logs WHERE result = 'lose'").get();
+  return {
+    total: total.cnt,
+    wins: wins.cnt,
+    losses: losses.cnt,
+    winRate: total.cnt > 0 ? (wins.cnt / total.cnt * 100).toFixed(1) : '0.0',
+  };
+}
+
+function aggregateMeta(season) {
+  const d = getDb();
+  const logs = d.prepare("SELECT my_team, enemy_team, result FROM battle_logs WHERE timestamp >= date('now', '-30 days')").all();
+
+  const stats = {};
+  for (const log of logs) {
+    let myTeam = [], enemyTeam = [];
+    try { myTeam = JSON.parse(log.my_team); } catch { continue; }
+    try { enemyTeam = JSON.parse(log.enemy_team); } catch { continue; }
+
+    const allSprites = new Set([...myTeam, ...enemyTeam]);
+    for (const sid of allSprites) {
+      if (!stats[sid]) stats[sid] = { games: 0, wins: 0, bans: 0 };
+      stats[sid].games++;
+      if (myTeam.includes(sid) && log.result === 'win') stats[sid].wins++;
+      if (log.result === 'ban' && myTeam.includes(sid)) stats[sid].bans++;
+    }
+  }
+
+  const totalGames = logs.length || 1;
+  const insert = d.prepare('INSERT INTO meta_reports (season, sprite_id, pick_rate, ban_rate, win_rate, updated_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'))');
+
+  // Clear old reports for this season
+  d.prepare('DELETE FROM meta_reports WHERE season = ?').run(season);
+
+  for (const [sid, s] of Object.entries(stats)) {
+    insert.run(season, Number(sid), s.games / totalGames, s.bans / totalGames, s.wins / Math.max(s.games, 1));
+  }
+
+  return { updated: Object.keys(stats).length };
+}
+
+function getMetaReports(season, limit = 50) {
+  return getDb().prepare(`
+    SELECT mr.*, s.name_zh, s.types
+    FROM meta_reports mr
+    JOIN sprites s ON mr.sprite_id = s.id
+    WHERE mr.season = ?
+    ORDER BY mr.pick_rate DESC
+    LIMIT ?
+  `).all(season, limit);
+}
+
 function closeDb() {
   if (db) { db.close(); db = null; }
 }
 
 export {
-  getDb as db, closeDb, querySprites, getSpriteById, getDistinctTypes, getStatRange,
+  getDb, closeDb, querySprites, getSpriteById, getDistinctTypes, getDistinctTypeCombinations, getStatRange,
   getAllSpritesAll, getTypeChartAttackTypes, getTypeChartList,
   getAllCollections, getCollectionById, createCollection, updateCollection,
   deleteCollection, reorderCollection, getCollectionItems, addToCollection,
   removeFromCollection, reorderCollectionItem, getSpriteCollections,
   parseTypes, searchEngravings, getEngravingsFilters,
-  getAllGenericTraits
+  getAllGenericTraits, getMovesetsBySpriteId,
+  insertBattleLog, getBattleLogs, getBattleStats, getBattleSummary,
+  aggregateMeta, getMetaReports
 };

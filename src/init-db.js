@@ -48,6 +48,7 @@ db.exec(`
     type TEXT,
     effect_desc TEXT,
     tags TEXT DEFAULT '[]',
+    priority INTEGER DEFAULT 0,
     UNIQUE(name, type)
   );
 
@@ -183,6 +184,16 @@ db.exec(`
     custom_values TEXT DEFAULT NULL,
     note TEXT DEFAULT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS pvp_ban_list (
+    id INTEGER PRIMARY KEY,
+    sprite_id INTEGER REFERENCES sprites(id),
+    pool_type TEXT NOT NULL,
+    season TEXT NOT NULL,
+    note TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(sprite_id, pool_type, season)
+  );
 `);
 
 // ── 7. Composite Indexes ──
@@ -208,6 +219,56 @@ db.exec(`
 
 // ALTER TABLE for existing databases
 try { db.exec('ALTER TABLE soul_seals ADD COLUMN kind TEXT'); } catch {}
+try { db.exec('ALTER TABLE skills ADD COLUMN priority INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE sprites ADD COLUMN acquisition TEXT'); } catch {}
+try { db.exec('ALTER TABLE sprites ADD COLUMN free_forbidden INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE sprites ADD COLUMN catch_rate INTEGER'); } catch {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS movesets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sprite_id INTEGER REFERENCES sprites(id),
+    name TEXT NOT NULL,
+    role TEXT,
+    skill_ids TEXT NOT NULL,
+    notes TEXT,
+    source TEXT DEFAULT 'community',
+    upvotes INTEGER DEFAULT 0
+  );
+  CREATE INDEX IF NOT EXISTS idx_movesets_sprite ON movesets(sprite_id);
+
+  CREATE TABLE IF NOT EXISTS battle_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT DEFAULT (datetime('now')),
+    mode TEXT,
+    my_team TEXT NOT NULL,
+    enemy_team TEXT NOT NULL,
+    result TEXT NOT NULL,
+    duration_seconds INTEGER,
+    key_moments TEXT,
+    enemy_hash TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_battle_logs_result ON battle_logs(result);
+  CREATE INDEX IF NOT EXISTS idx_battle_logs_timestamp ON battle_logs(timestamp);
+
+  CREATE TABLE IF NOT EXISTS battle_stats (
+    sprite_id INTEGER PRIMARY KEY,
+    games INTEGER DEFAULT 0,
+    wins INTEGER DEFAULT 0,
+    bans INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS meta_reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    season TEXT NOT NULL,
+    sprite_id INTEGER,
+    pick_rate REAL,
+    ban_rate REAL,
+    win_rate REAL,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_meta_season ON meta_reports(season);
+`);
 
 console.log('Database initialized at:', DB_PATH);
 db.close();
