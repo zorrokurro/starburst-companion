@@ -384,17 +384,7 @@ async function bootstrapWithWindow(userData) {
 
     const tryDownload = (index) => {
       if (index >= INIT_DB_URLS.length) {
-        // Fallback: copy bundled DB from app resources
-        const bundledDb = path.join(__dirname, 'db', 'seer.db');
-        if (fs.existsSync(bundledDb) && fs.statSync(bundledDb).size > 1024 * 100) {
-          log.info(`[bootstrap] CDN failed, copying bundled DB: ${bundledDb}`);
-          fs.copyFileSync(bundledDb, dbPath);
-          log.info(`[bootstrap] Bundled DB copied: ${fs.statSync(dbPath).size} bytes`);
-          isBootstrapping = false;
-          resolve(true);
-          return;
-        }
-        log.error('[bootstrap] All download sources failed and no bundled DB');
+        log.error('[bootstrap] All download sources failed (no bundled DB fallback in this build)');
         isBootstrapping = false;
         resolve(false);
         return;

@@ -1,6 +1,6 @@
 {
   "name": "seer-tactics",
-  "version": "0.2.5",
+  "version": "0.2.4",
   "description": "星爆輔助器",
   "main": "main.cjs",
   "type": "module",
@@ -50,7 +50,7 @@
       "preload.cjs",
       "src/**/*",
       "public/**/*",
-      "db/seer.db",
+      "!db/seer.db",
       "!public/sprites/head/**",
       "!public/sprites/body/**",
       "!node_modules/playwright/**",
