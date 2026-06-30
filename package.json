@@ -40,7 +40,7 @@
   "build": {
     "appId": "com.seer.tactics",
     "productName": "星爆輔助器",
-    "npmRebuild": false,
+    "npmRebuild": true,
     "artifactName": "seer-tactics-setup-${version}.${ext}",
     "directories": {
       "output": "seer-build5"

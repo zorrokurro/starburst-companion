@@ -822,7 +822,7 @@ async function registerIpcHandlers() {
     getAllCollections, getCollectionById, createCollection, updateCollection,
     deleteCollection, reorderCollection, getCollectionItems, addToCollection,
     removeFromCollection, reorderCollectionItem, getSpriteCollections,
-    searchEngravings, getEngravingsFilters, getAllGenericTraits, getMovesetsBySpriteId, parseTypes, db: getDb,
+    searchEngravings, getEngravingsFilters, getAllGenericTraits, getMovesetsBySpriteId, parseTypes, getDb,
     insertBattleLog, getBattleLogs, getBattleStats, getBattleSummary,
     aggregateMeta, getMetaReports,
   } = dbModule;
