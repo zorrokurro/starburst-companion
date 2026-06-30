@@ -73,13 +73,9 @@
 
       <div class="toolbar-row">
         <div class="filter-tabs" id="filter-tabs">
-          <button class="filter-tab active" data-tab="single">單屬性</button>
+          <button class="filter-tab" data-tab="single">單屬性</button>
           <button class="filter-tab" data-tab="dual">雙屬性</button>
         </div>
-      </div>
-
-      <div class="toolbar-row">
-        <div class="type-chips" id="type-filters"></div>
         <label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-muted);cursor:pointer;white-space:nowrap;margin-left:auto">
           <input type="checkbox" id="final-only"> 只看最終進化
         </label>
@@ -93,6 +89,10 @@
           <option value="disruptive">干扰型</option>
           <option value="balanced">均衡型</option>
         </select>
+      </div>
+
+      <div class="toolbar-row" id="type-filters-row" style="display:none;">
+        <div class="type-chips" id="type-filters"></div>
       </div>
     </div>
 
@@ -233,7 +233,7 @@
               <option value="status">異常機率</option>
             </select>
           </div>
-          <button onclick="TeamSim.runTacticAdvice()" style="white-space:nowrap;">計算</button>
+          <button onclick="TeamSim?.runTacticAdvice()" style="white-space:nowrap;">計算</button>
         </div>
         <div id="ts-tacticResults"></div>
       </div>
@@ -241,7 +241,7 @@
       <div class="card" id="ts-matchupAnalysisCard" style="display:none;">
         <h2>對位分析</h2>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
-          <button onclick="TeamSim.runMatchupAnalysis()" id="ts-matchupBtn">分析全對位</button>
+          <button onclick="TeamSim?.runMatchupAnalysis()" id="ts-matchupBtn">分析全對位</button>
           <span id="ts-matchupStatus" style="color:var(--text-muted);font-size:13px;"></span>
         </div>
         <div id="ts-matchupResults"></div>
@@ -250,15 +250,18 @@
       <div class="card" id="ts-banPickCard" style="display:none;">
         <h2>Ban/Pick 模擬</h2>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
-          <button onclick="TeamSim.startBanPick()" id="ts-banPickBtn">開始模擬</button>
-          <button onclick="TeamSim.resetBanPick()" class="btn-danger" style="display:none;" id="ts-banPickReset">重置</button>
+          <button onclick="TeamSim?.startBanPick()" id="ts-banPickBtn">開始模擬</button>
+          <button onclick="TeamSim?.resetBanPick()" class="btn-danger" style="display:none;" id="ts-banPickReset">重置</button>
           <span id="ts-banPickStatus" style="color:var(--text-muted);font-size:13px;"></span>
         </div>
         <div id="ts-banPickResults"></div>
       </div>
 
       <div class="damage-detail" id="ts-damageDetail">
-        <h3 style="color:var(--accent);margin-bottom:10px;">傷害試算</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="color:var(--accent);margin:0;">傷害試算</h3>
+          <button onclick="TeamSim?.closeDamageDetail()" style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+        </div>
         <div id="ts-damageContent"></div>
         <div class="disclaimer" style="margin-top:15px;">
           <strong>⚠️ 估算值提醒：</strong>

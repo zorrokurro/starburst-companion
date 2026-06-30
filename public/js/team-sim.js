@@ -278,7 +278,7 @@ const TeamSim = (() => {
   function renderModalSpriteList(filter = '') {
     const list = $('ts-modalSpriteList');
     if (!list) return;
-    const filtered = allSprites.filter(s => s.name_zh.includes(filter) || s.cn_id.includes(filter));
+    const filtered = allSprites.filter(s => s.name_zh.includes(filter) || String(s.cn_id).includes(filter));
     list.innerHTML = filtered.map(s => `
       <div class="sprite-item" onclick="TeamSim.selectSpriteFromModal(${s.id})">
         <div><strong>${s.name_zh}</strong> <span style="color:var(--text-muted);margin-left:10px;">#${s.cn_id}</span></div>
@@ -664,9 +664,9 @@ const TeamSim = (() => {
     matrix.forEach((row, i) => {
       const a = myF[i];
       html += `<tr><th>${a.name_zh}<br>${(a.types||[]).map(t => typeBadgeHTML(t)).join('')}</th>`;
-      row.forEach((m) => {
+      row.forEach((m, j) => {
         const cls = m >= 4 ? 'matrix-4x' : m >= 2 ? 'matrix-2x' : m > 1 ? 'matrix-1x' : m >= 0.5 ? 'matrix-0_5x' : m > 0 ? 'matrix-0_25x' : 'matrix-0x';
-        html += `<td class="matrix-cell ${cls}" onclick="TeamSim.showDamageDetail(${i},${row.indexOf(m)})">${m}x</td>`;
+        html += `<td class="matrix-cell ${cls}" onclick="TeamSim.showDamageDetail(${i},${j})">${m}x</td>`;
       });
       html += '</tr>';
     });
@@ -743,6 +743,10 @@ const TeamSim = (() => {
     bind('ts-optSupreme', 'supreme', { event: 'change', parse: e => e.target.checked });
 
     runDamageCalc();
+  }
+
+  function closeDamageDetail() {
+    $('ts-damageDetail').classList.remove('active');
   }
 
   async function runDamageCalc() {
@@ -1097,9 +1101,9 @@ const TeamSim = (() => {
         const dmgClass = pctAvg >= 50 ? 'damage-high' : pctAvg >= 25 ? 'damage-mid' : 'damage-low';
         let badges = '';
         if (r.isGuaranteedKill) badges += '<span class="tactic-badge tactic-badge-ohko">確殺</span>';
-        else if (r.isKill) badges += `<span class="tactic-badge tactic-badge-chance">可能秒殺 ${r.ohko.probability}%</span>`;
+        else if (r.isKill) badges += `<span class="tactic-badge tactic-badge-chance">可能秒殺 ${r.ohko?.probability ?? '?'}%</span>`;
         else badges += `<span class="tactic-badge tactic-badge-nokill">無法秒殺</span>`;
-        for (const se of r.statusEffects) {
+        for (const se of (r.statusEffects || [])) {
           badges += `<span class="tactic-badge tactic-badge-status">${se.status} ${se.chance}%</span>`;
         }
         const typeBadge = (r.skill.type || '') ? typeBadgeHTML(r.skill.type) : '';
@@ -1631,6 +1635,7 @@ const TeamSim = (() => {
     document.getElementById('ts-banPickResults').innerHTML = '';
     document.getElementById('ts-banPickStatus').textContent = '';
     document.getElementById('ts-banPickReset').style.display = 'none';
+    document.getElementById('ts-banPickCard').style.display = 'none';
   }
 
   function renderBanPick() {
@@ -1762,7 +1767,7 @@ const TeamSim = (() => {
   return {
     init, openSpriteSelector, selectSpriteFromModal, addToTeam, removeFromTeam,
     openConfig, saveConfig, closeConfigModal, toggleCollapse, applyEvPreset,
-    showDamageDetail, saveTeam, shareTeam, copyShareCode,
+    showDamageDetail, closeDamageDetail, saveTeam, shareTeam, copyShareCode,
     openImportModal, importTeam, closeModal, clearDamageHistory,
     openTextModal, closeTextModal, textModalAction,
     loadSavedTeam, renameSavedTeam, deleteSavedTeam, clearAll,

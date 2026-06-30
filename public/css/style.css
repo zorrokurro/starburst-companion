@@ -5,8 +5,10 @@
   --bg-card: #1a1d28;
   --bg-card-hover: #222638;
   --bg-surface: #151820;
+  --bg-secondary: #1e2130;
   --border: #2a2e3d;
   --text: #e0e0e8;
+  --text-primary: #e0e0e8;
   --text-muted: #8888a0;
   --accent: #6c8cff;
   --accent-hover: #8aa4ff;
@@ -881,7 +883,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 }
 
 /* ── Type Chart View ── */
-.tc-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.tc-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 .tc-title { text-align: center; color: var(--accent); margin-bottom: 10px; font-size: 24px; }
 .tc-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
 .effectiveness-category { margin-top: 15px; }
@@ -1276,7 +1278,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 /* ── Radar Chart ── */
 .radar-charts-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -1284,6 +1286,11 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   flex: 1;
   min-width: 280px;
   max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  overflow: hidden;
 }
 .radar-chart-box svg {
   width: 100%;
@@ -1347,19 +1354,6 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   color: var(--accent);
   margin-bottom: 15px;
   font-size: 16px;
-}
-.radar-charts-row {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.radar-chart-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  overflow: hidden;
 }
 .radar-warnings {
   margin-top: 15px;

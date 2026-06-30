@@ -167,7 +167,7 @@ const IndexState = {
   playstyle: undefined,
   allTypes: [],
   typeCombinations: { single: [], dual: [] },
-  filterTab: 'single',
+  filterTab: null,
   favoriteSprites: new Set(),
 };
 
@@ -360,7 +360,7 @@ async function loadFilterOptions() {
 
 function renderTypeChips() {
   const container = document.getElementById('type-filters');
-  const { filterTab, allTypes, typeCombinations } = IndexState;
+  const { filterTab, typeCombinations } = IndexState;
 
   if (filterTab === 'single') {
     container.innerHTML = typeCombinations.single.map(t =>
@@ -369,20 +369,18 @@ function renderTypeChips() {
       </span>`
     ).join('');
   } else if (filterTab === 'dual') {
-    let html = '';
+    const allCombos = [];
     for (const group of typeCombinations.dual) {
-      html += `<div class="dual-type-group">`;
-      html += `<div class="dual-type-group-label">${group.group}</div>`;
-      html += `<div class="dual-type-group-items">`;
       for (const combo of group.combos) {
-        const key = combo.types.sort().join('');
-        html += `<span class="type-chip type-chip-dual" data-type="${combo.types.join(',')}" data-filter-mode="dual">
-          <img class="dual-type-icon" src="/types-dual/${key}.png" alt="${combo.types.join('/')}" onerror="this.style.display='none'">
-        </span>`;
+        allCombos.push(combo);
       }
-      html += `</div></div>`;
     }
-    container.innerHTML = html;
+    container.innerHTML = allCombos.map(combo => {
+      const key = combo.types.sort().join('');
+      return `<span class="type-chip type-chip-dual" data-type="${combo.types.join(',')}" data-filter-mode="dual">
+        <img class="dual-type-icon" src="/types-dual/${key}.png" alt="${combo.types.join('/')}" onerror="this.style.display='none'">
+      </span>`;
+    }).join('');
   }
 }
 
@@ -391,10 +389,19 @@ function initFilterListeners() {
     const tab = e.target.closest('.filter-tab');
     if (!tab) return;
     const newTab = tab.dataset.tab;
-    if (newTab === IndexState.filterTab) return;
+    const row = document.getElementById('type-filters-row');
+    if (newTab === IndexState.filterTab) {
+      IndexState.filterTab = null;
+      IndexState.selectedTypes = [];
+      tab.classList.remove('active');
+      row.style.display = 'none';
+      resetAndLoad();
+      return;
+    }
     IndexState.filterTab = newTab;
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === newTab));
     IndexState.selectedTypes = [];
+    row.style.display = '';
     renderTypeChips();
     resetAndLoad();
   });
@@ -405,28 +412,10 @@ function initFilterListeners() {
     const mode = chip.dataset.filterMode;
     if (mode === 'single') {
       const type = chip.dataset.type;
-      if (IndexState.selectedTypes.includes(type)) {
-        IndexState.selectedTypes = [];
-      } else {
-        IndexState.selectedTypes = [type];
-      }
+      IndexState.selectedTypes = IndexState.selectedTypes.includes(type) ? [] : [type];
     } else if (mode === 'dual') {
-      const types = chip.dataset.type.split(',');
-      const key = types.join(',');
-      if (IndexState.selectedTypes.join(',') === key) {
-        IndexState.selectedTypes = [];
-      } else {
-        IndexState.selectedTypes = types;
-      }
-    } else {
-      const type = chip.dataset.type;
-      if (IndexState.selectedTypes.includes(type)) {
-        IndexState.selectedTypes = IndexState.selectedTypes.filter(t => t !== type);
-      } else if (IndexState.selectedTypes.length >= 2) {
-        IndexState.selectedTypes = [type];
-      } else {
-        IndexState.selectedTypes.push(type);
-      }
+      const key = chip.dataset.type;
+      IndexState.selectedTypes = IndexState.selectedTypes.join(',') === key ? [] : key.split(',');
     }
     document.querySelectorAll('.type-chip').forEach(c => {
       const cType = c.dataset.type;
@@ -522,8 +511,6 @@ async function loadSprites(reset = false) {
         sort: IndexState.sort,
         order: IndexState.order,
         types: IndexState.selectedTypes.length ? IndexState.selectedTypes : undefined,
-        singleOnly: IndexState.filterTab === 'single' ? true : undefined,
-        dualOnly: IndexState.filterTab === 'dual' && IndexState.selectedTypes.length === 0 ? true : undefined,
         finalOnly: IndexState.finalOnly || undefined,
         playstyle: IndexState.playstyle || undefined,
         minTotal: IndexState.minTotal,

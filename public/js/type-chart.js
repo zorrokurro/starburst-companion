@@ -30,7 +30,7 @@ const TypeChart = (() => {
     const list = document.getElementById('tc-spriteList');
     if (!list) return;
     const filtered = allSprites.filter(s =>
-      s.name_zh.includes(filter) || s.cn_id.includes(filter)
+      s.name_zh.includes(filter) || String(s.cn_id).includes(filter)
     );
 
     list.innerHTML = filtered.map(s => `
@@ -106,7 +106,7 @@ const TypeChart = (() => {
 
   async function calculateEffectiveness(types) {
     const data = await API.invoke('db:calculate-effectiveness', {
-      attackTypes: ['水'],
+      attackTypes: allTypes,
       defendTypes: types,
     });
 
