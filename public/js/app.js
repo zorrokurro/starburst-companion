@@ -490,11 +490,19 @@ function setViewMode(mode) {
 }
 
 // ── Load Sprites ──
+let _loadGeneration = 0;
+let _pendingReset = false;
+
 async function loadSprites(reset = false) {
-  if (IndexState.loading) return;
+  if (IndexState.loading) {
+    if (reset) _pendingReset = true;
+    return;
+  }
   if (!reset && !IndexState.hasMore) return;
 
+  _pendingReset = false;
   IndexState.loading = true;
+  const gen = ++_loadGeneration;
   const indicator = document.getElementById('loading-indicator');
   indicator.style.display = 'block';
 
@@ -522,6 +530,8 @@ async function loadSprites(reset = false) {
       new Promise((_, reject) => setTimeout(() => reject(new Error('IPC timeout (10s)')), 10000)),
     ]);
 
+    if (gen !== _loadGeneration) return;
+
     console.log('[loadSprites] got result, total=', result.total);
     IndexState.total = result.total;
     document.getElementById('sprite-count').textContent = `共 ${result.total} 筆精靈`;
@@ -543,6 +553,10 @@ async function loadSprites(reset = false) {
   } finally {
     IndexState.loading = false;
     indicator.style.display = 'none';
+    if (_pendingReset) {
+      _pendingReset = false;
+      loadSprites(true);
+    }
   }
 }
 
