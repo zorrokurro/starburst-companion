@@ -138,19 +138,22 @@ export function resolveStats(sprite, config = {}) {
 }
 
 /**
- * 解析特性效果，返回增傷/減傷倍率
+ * 解析特性效果，返回增傷/減傷倍率 + 語意元資料
  *
- * 只處理直接影響傷害的特性（17個）：
+ * 支援的特性類型（直接影響傷害）：
  * - 屬性增傷 (16): 技能威力 +X%（按屬性匹配）
  * - 攻擊增傷 (2): 技能威力 +X%（按物攻/特攻匹配）
  * - 坚硬: 受到傷害 -X%
  *
+ * 附帶返回 trigger_type, effect_type, target 等語意欄位，
+ * 供 teamAnalyzer / matchupCalculator 做更深層推理。
+ *
  * @param {Object|null} traitInfo - { traitId, starLevel }
  * @param {Array|null} traitCache - 通用特性資料表
- * @returns {{ typeBonus: number, elementType: string|null, atkTypeBonus: number, atkType: string|null, damageReduction: number }}
+ * @returns {{ typeBonus: number, elementType: string|null, atkTypeBonus: number, atkType: string|null, damageReduction: number, semantic: Object|null }}
  */
 export function resolveTraitEffect(traitInfo, traitCache) {
-  const result = { typeBonus: 0, elementType: null, atkTypeBonus: 0, atkType: null, damageReduction: 0 };
+  const result = { typeBonus: 0, elementType: null, atkTypeBonus: 0, atkType: null, damageReduction: 0, semantic: null };
   if (!traitInfo || !traitCache) return result;
 
   const trait = traitCache.find(t => t.id === traitInfo.traitId);
@@ -180,6 +183,17 @@ export function resolveTraitEffect(traitInfo, traitCache) {
   // 坚硬: 受到攻擊傷害減少 X%
   if (trait.name === '坚硬') {
     result.damageReduction = pct;
+  }
+
+  // Attach semantic metadata for downstream reasoning
+  if (trait.trigger_type || trait.effect_type) {
+    result.semantic = {
+      triggerType: trait.trigger_type,
+      effectType: trait.effect_type,
+      target: trait.target,
+      statModified: trait.stat_modified ? JSON.parse(trait.stat_modified) : null,
+      confidence: trait.confidence,
+    };
   }
 
   return result;

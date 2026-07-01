@@ -115,6 +115,7 @@ const ROUTES = {
   'type-chart':  'view-type-chart',
   'team-sim':    'view-team-sim',
   'battle-log':  'view-battle-log',
+  'meta':        'view-meta',
 };
 
 const routeInitialized = {};
@@ -142,6 +143,8 @@ function handleRoute() {
       TeamSim.init();
     } else if (hash === 'battle-log' && typeof BattleLog !== 'undefined') {
       BattleLog.init();
+    } else if (hash === 'meta' && typeof MetaDashboard !== 'undefined') {
+      MetaDashboard.init();
     }
   }
 }
@@ -1071,5 +1074,85 @@ const BattleLog = {
       await this.loadMeta();
     } catch (e) { alert('更新失敗: ' + e.message); }
   }
+};
+
+// ════════════ Meta Dashboard Module ════════════
+const MetaDashboard = {
+  initialized: false,
+
+  async init() {
+    if (this.initialized) return;
+    this.initialized = true;
+    await this.refresh();
+  },
+
+  async refresh() {
+    const status = document.getElementById('meta-status');
+    if (status) status.textContent = '載入中...';
+    try {
+      await Promise.all([
+        this.loadArchetypeDistribution(),
+        this.loadTopMeta(),
+      ]);
+      if (status) status.textContent = `更新於 ${new Date().toLocaleTimeString()}`;
+    } catch (e) {
+      console.error('Meta load failed:', e);
+      if (status) status.textContent = '載入失敗';
+    }
+  },
+
+  async loadArchetypeDistribution() {
+    const el = document.getElementById('meta-archetypeDist');
+    if (!el) return;
+    try {
+      const dist = await API.meta.archetypeDistribution();
+      if (!dist.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無 archetype 資料</div>'; return; }
+      const colors = {
+        '爆發攻擊': '#e74c3c', '持續攻擊': '#e67e22', '坦克': '#3498db',
+        '速度型': '#9b59b6', '輔助': '#2ecc71', '控場': '#f39c12', '平衡': '#95a5a6',
+      };
+      el.innerHTML = dist.map(d => {
+        const color = colors[d.label] || '#95a5a6';
+        return `<div style="flex:1;min-width:120px;background:var(--bg-surface);border-radius:var(--radius);padding:12px;text-align:center;border-left:3px solid ${color};">
+          <div style="font-size:24px;font-weight:bold;color:${color};">${d.count}</div>
+          <div style="font-size:13px;font-weight:600;">${d.label}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${d.percentage}%</div>
+        </div>`;
+      }).join('');
+    } catch (e) { el.innerHTML = '<div style="color:var(--danger);padding:10px;">載入失敗</div>'; }
+  },
+
+  async loadTopMeta() {
+    const el = document.getElementById('meta-topList');
+    if (!el) return;
+    try {
+      const top = await API.meta.top(50);
+      if (!top.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無排行資料（需要對戰紀錄）</div>'; return; }
+      el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="border-bottom:2px solid var(--border);color:var(--text-muted);">
+          <th style="text-align:left;padding:8px;">#</th>
+          <th style="text-align:left;padding:8px;">精靈</th>
+          <th style="text-align:center;padding:8px;">Archetype</th>
+          <th style="text-align:center;padding:8px;">場次</th>
+          <th style="text-align:center;padding:8px;">勝率</th>
+          <th style="text-align:center;padding:8px;">信賴區間</th>
+        </tr></thead>
+        <tbody>${top.map((t, i) => {
+          const wrPct = (t.winrate * 100).toFixed(1);
+          const ciLow = (t.ci_lower * 100).toFixed(1);
+          const ciHigh = (t.ci_upper * 100).toFixed(1);
+          const wrColor = t.winrate >= 0.55 ? '#4caf50' : t.winrate <= 0.45 ? '#f44336' : 'var(--text)';
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px;color:var(--text-muted);">${i + 1}</td>
+            <td style="padding:8px;font-weight:600;">${t.name}</td>
+            <td style="padding:8px;text-align:center;"><span style="font-size:11px;color:var(--text-muted);">${t.archetypeLabel}</span></td>
+            <td style="padding:8px;text-align:center;">${t.games}</td>
+            <td style="padding:8px;text-align:center;color:${wrColor};font-weight:700;">${wrPct}%</td>
+            <td style="padding:8px;text-align:center;color:var(--text-muted);font-size:11px;">${ciLow}% ~ ${ciHigh}%</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    } catch (e) { el.innerHTML = '<div style="color:var(--danger);padding:10px;">載入失敗</div>'; }
+  },
 };
 

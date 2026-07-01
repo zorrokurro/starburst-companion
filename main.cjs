@@ -79,6 +79,7 @@ let isBootstrapping = false;
 let dbModule = null;
 let typeCalcModule = null;
 let damageCalcModule = null;
+let metaServiceModule = null;
 
 function getBundlePath(...segments) {
   return app.isPackaged
@@ -814,6 +815,8 @@ async function registerIpcHandlers() {
   typeCalcModule = await import('./src/typeCalculator.js');
   log.info('[ipc] importing damageCalculator.js...');
   damageCalcModule = await import('./src/damageCalculator.js');
+  log.info('[ipc] importing metaService.js...');
+  metaServiceModule = await import('./src/metaService.js');
   log.info('[ipc] imports done');
 
   const {
@@ -897,6 +900,73 @@ async function registerIpcHandlers() {
   ipcMain.handle('db:meta:reports', (_e, season, limit) => {
     if (!verifySender(_e)) return [];
     try { return getMetaReports(season, limit); } catch { return []; }
+  });
+
+  // ── Meta Service (Phase 2: Service Layer) ──
+  ipcMain.handle('db:meta:archetype', (_e, spriteId) => {
+    if (!verifySender(_e)) return null;
+    try { return metaServiceModule.getArchetype(spriteId); } catch { return null; }
+  });
+  ipcMain.handle('db:meta:archetypes', (_e) => {
+    if (!verifySender(_e)) return [];
+    try { return metaServiceModule.getAllArchetypes(); } catch { return []; }
+  });
+  ipcMain.handle('db:meta:archetype-distribution', (_e) => {
+    if (!verifySender(_e)) return [];
+    try { return metaServiceModule.getArchetypeDistribution(); } catch { return []; }
+  });
+  ipcMain.handle('db:meta:archetype-labels', (_e) => {
+    if (!verifySender(_e)) return [];
+    try { return metaServiceModule.getArchetypeDefinitions(); } catch { return []; }
+  });
+  ipcMain.handle('db:meta:matchup-matrix', (_e, myIds, enemyIds) => {
+    if (!verifySender(_e)) return { matrix: [], myCount: 0, enemyCount: 0 };
+    try { return metaServiceModule.getMatchupMatrix(myIds, enemyIds); } catch { return { matrix: [], myCount: 0, enemyCount: 0 }; }
+  });
+  ipcMain.handle('db:meta:matchups', (_e, spriteId) => {
+    if (!verifySender(_e)) return { asAttacker: [], asDefender: [] };
+    try { return metaServiceModule.getMatchupsForSprite(spriteId); } catch { return { asAttacker: [], asDefender: [] }; }
+  });
+  ipcMain.handle('db:meta:top', (_e, limit, season) => {
+    if (!verifySender(_e)) return [];
+    try { return metaServiceModule.getTopMeta(limit, season); } catch { return []; }
+  });
+  ipcMain.handle('db:meta:trends', (_e, spriteId, season) => {
+    if (!verifySender(_e)) return [];
+    try { return metaServiceModule.getTrends(spriteId, season); } catch { return []; }
+  });
+  ipcMain.handle('db:meta:full', (_e, season) => {
+    if (!verifySender(_e)) return null;
+    try { return metaServiceModule.getFullMeta(season); } catch { return null; }
+  });
+  ipcMain.handle('db:meta:refresh', (_e) => {
+    if (!verifySender(_e)) return { cleared: false };
+    try { return metaServiceModule.refreshAll(); } catch { return { cleared: false }; }
+  });
+  ipcMain.handle('db:meta:classify-all', (_e) => {
+    if (!verifySender(_e)) return null;
+    try { return metaServiceModule.classifyAll(); } catch { return null; }
+  });
+  // Unified meta query — single entry point for all meta analytics
+  ipcMain.handle('db:meta:query', (_e, type, params) => {
+    if (!verifySender(_e)) return null;
+    try {
+      const svc = metaServiceModule;
+      switch (type) {
+        case 'archetype': return svc.getArchetype(params.spriteId);
+        case 'archetypes': return svc.getAllArchetypes();
+        case 'archetypeDistribution': return svc.getArchetypeDistribution();
+        case 'archetypeLabels': return svc.getArchetypeDefinitions();
+        case 'matchupMatrix': return svc.getMatchupMatrix(params.myIds, params.enemyIds);
+        case 'matchups': return svc.getMatchupsForSprite(params.spriteId);
+        case 'top': return svc.getTopMeta(params.limit, params.season);
+        case 'trends': return svc.getTrends(params.spriteId, params.season);
+        case 'full': return svc.getFullMeta(params.season);
+        case 'refresh': return svc.refreshAll();
+        case 'classifyAll': return svc.classifyAll();
+        default: return null;
+      }
+    } catch { return null; }
   });
 
   // ── Filters ──

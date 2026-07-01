@@ -17,6 +17,7 @@
       <a href="#type-chart" class="nav-tab">屬性克制</a>
       <a href="#team-sim" class="nav-tab">隊伍模擬</a>
       <a href="#battle-log" class="nav-tab">戰後記錄</a>
+    <a href="#meta" class="nav-tab">Meta 分析</a>
     </div>
     <div id="update-banner" class="update-banner hidden"></div>
     <div id="data-update-banner" class="update-banner hidden"></div>
@@ -190,6 +191,13 @@
         <button onclick="TeamSim?.openTextModal('export')">匯出文本</button>
         <button onclick="TeamSim?.openTextModal('import')">匯入文本</button>
         <button class="btn-danger" onclick="TeamSim?.clearAll()">清空全部</button>
+      </div>
+
+      <div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 16px;">
+        <span style="font-size:13px;color:var(--text-muted);">記錄結果：</span>
+        <button onclick="TeamSim?.recordBattle('win')" style="background:#4caf50;color:white;padding:4px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">勝利</button>
+        <button onclick="TeamSim?.recordBattle('lose')" style="background:#f44336;color:white;padding:4px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">敗北</button>
+        <button onclick="TeamSim?.recordBattle('draw')" style="background:#ff9800;color:white;padding:4px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;">平手</button>
       </div>
 
       <div class="card" id="ts-matrixCard" style="display:none;">
@@ -444,6 +452,39 @@
         <div id="bl-metaList" style="max-height:400px;overflow-y:auto;">
           <div style="text-align:center;color:var(--text-muted);padding:20px;">尚無 Meta 資料</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ View: Meta 分析 ════════════ -->
+  <div id="view-meta" class="spa-view hidden">
+    <div class="ts-container">
+      <h1 class="ts-title">Meta 分析</h1>
+      <p class="ts-subtitle">精靈使用率、勝率趨勢、屬性分佈</p>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+        <button onclick="MetaDashboard?.refresh()" class="btn-primary" style="padding:6px 16px;">重新整理</button>
+        <span id="meta-status" style="color:var(--text-muted);font-size:13px;"></span>
+      </div>
+
+      <!-- Archetype Distribution -->
+      <div class="card" id="meta-archetypeCard">
+        <h2>Archetype 分佈</h2>
+        <div id="meta-archetypeDist" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Top Meta -->
+      <div class="card" id="meta-topCard">
+        <h2>Meta 排行</h2>
+        <div id="meta-topList" style="max-height:500px;overflow-y:auto;">
+          <div style="text-align:center;color:var(--text-muted);padding:20px;">載入中...</div>
+        </div>
+      </div>
+
+      <!-- Matchup Matrix (selected sprites) -->
+      <div class="card" id="meta-matchupCard" style="display:none;">
+        <h2>對戰配對</h2>
+        <div id="meta-matchupContent"></div>
       </div>
     </div>
   </div>

@@ -64,7 +64,13 @@ db.exec(`
     sprite_id INTEGER REFERENCES sprites(id),
     effect_desc TEXT,
     name_zh_tw TEXT,
-    kind TEXT
+    kind TEXT,
+    trigger_condition TEXT,
+    effect_raw TEXT,
+    effect_semantic TEXT,
+    tags TEXT DEFAULT '[]',
+    confidence REAL DEFAULT 1.0,
+    source TEXT DEFAULT 'bwiki'
   );
 
   CREATE TABLE IF NOT EXISTS engravings (
@@ -98,6 +104,10 @@ db.exec(`
     attack_type TEXT,
     defend_type TEXT,
     multiplier REAL,
+    rule_type TEXT DEFAULT 'base',
+    source TEXT DEFAULT 'seed',
+    confidence REAL DEFAULT 1.0,
+    note TEXT DEFAULT NULL,
     PRIMARY KEY (attack_type, defend_type)
   );
 
@@ -182,7 +192,12 @@ db.exec(`
     formula_type TEXT NOT NULL,
     description_template TEXT NOT NULL,
     custom_values TEXT DEFAULT NULL,
-    note TEXT DEFAULT NULL
+    note TEXT DEFAULT NULL,
+    trigger_type TEXT DEFAULT NULL,
+    effect_type TEXT DEFAULT NULL,
+    target TEXT DEFAULT 'self',
+    stat_modified TEXT DEFAULT NULL,
+    confidence REAL DEFAULT 1.0
   );
 
   CREATE TABLE IF NOT EXISTS pvp_ban_list (
@@ -225,6 +240,29 @@ try { db.exec('ALTER TABLE sprites ADD COLUMN free_forbidden INTEGER DEFAULT 0')
 try { db.exec('ALTER TABLE sprites ADD COLUMN catch_rate INTEGER'); } catch {}
 try { db.exec('ALTER TABLE sprites ADD COLUMN playstyle TEXT'); } catch {}
 try { db.exec('ALTER TABLE soul_seals ADD COLUMN trigger_condition TEXT'); } catch {}
+// Soul seal semantic layer (Phase 1: Truth Layer)
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN effect_raw TEXT'); } catch {}
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN effect_semantic TEXT'); } catch {}
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN tags TEXT DEFAULT \'[]\''); } catch {}
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+try { db.exec('ALTER TABLE soul_seals ADD COLUMN source TEXT DEFAULT \'bwiki\''); } catch {}
+// Generic traits semantic layer (TASK 2: Ability Taxonomy)
+try { db.exec('ALTER TABLE generic_traits ADD COLUMN trigger_type TEXT'); } catch {}
+try { db.exec('ALTER TABLE generic_traits ADD COLUMN effect_type TEXT'); } catch {}
+try { db.exec("ALTER TABLE generic_traits ADD COLUMN target TEXT DEFAULT 'self'"); } catch {}
+try { db.exec('ALTER TABLE generic_traits ADD COLUMN stat_modified TEXT'); } catch {}
+try { db.exec('ALTER TABLE generic_traits ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+// Type chart rule engine (TASK 3: Type System)
+try { db.exec("ALTER TABLE type_chart ADD COLUMN rule_type TEXT DEFAULT 'base'"); } catch {}
+try { db.exec("ALTER TABLE type_chart ADD COLUMN source TEXT DEFAULT 'seed'"); } catch {}
+try { db.exec('ALTER TABLE type_chart ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+try { db.exec('ALTER TABLE type_chart ADD COLUMN note TEXT'); } catch {}
+// Phase 2: Meta System migrations
+try { db.exec('ALTER TABLE battle_logs ADD COLUMN my_lead INTEGER'); } catch {}
+try { db.exec('ALTER TABLE battle_logs ADD COLUMN enemy_lead INTEGER'); } catch {}
+try { db.exec('ALTER TABLE battle_logs ADD COLUMN turns INTEGER'); } catch {}
+try { db.exec('ALTER TABLE battle_logs ADD COLUMN my_roster TEXT'); } catch {}
+try { db.exec('ALTER TABLE battle_logs ADD COLUMN enemy_roster TEXT'); } catch {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS movesets (
@@ -248,7 +286,12 @@ db.exec(`
     result TEXT NOT NULL,
     duration_seconds INTEGER,
     key_moments TEXT,
-    enemy_hash TEXT
+    enemy_hash TEXT,
+    my_lead INTEGER,
+    enemy_lead INTEGER,
+    turns INTEGER,
+    my_roster TEXT,
+    enemy_roster TEXT
   );
   CREATE INDEX IF NOT EXISTS idx_battle_logs_result ON battle_logs(result);
   CREATE INDEX IF NOT EXISTS idx_battle_logs_timestamp ON battle_logs(timestamp);
@@ -270,6 +313,42 @@ db.exec(`
     updated_at TEXT DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_meta_season ON meta_reports(season);
+
+  -- Phase 2: Meta System
+  CREATE TABLE IF NOT EXISTS sprite_archetypes (
+    sprite_id INTEGER PRIMARY KEY REFERENCES sprites(id),
+    primary_archetype TEXT NOT NULL,
+    secondary_archetype TEXT,
+    confidence REAL DEFAULT 1.0,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS matchup_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attacker_sprite_id INTEGER REFERENCES sprites(id),
+    defender_sprite_id INTEGER REFERENCES sprites(id),
+    games INTEGER DEFAULT 0,
+    wins INTEGER DEFAULT 0,
+    avg_turns REAL,
+    updated_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(attacker_sprite_id, defender_sprite_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_matchup_attack ON matchup_stats(attacker_sprite_id);
+  CREATE INDEX IF NOT EXISTS idx_matchup_defend ON matchup_stats(defender_sprite_id);
+
+  CREATE TABLE IF NOT EXISTS meta_trends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sprite_id INTEGER REFERENCES sprites(id),
+    season TEXT NOT NULL,
+    pick_rate REAL,
+    win_rate REAL,
+    ban_rate REAL,
+    trend_direction TEXT,
+    sample_size INTEGER DEFAULT 0,
+    calculated_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_trend_sprite ON meta_trends(sprite_id);
+  CREATE INDEX IF NOT EXISTS idx_trend_season ON meta_trends(season);
 `);
 
 console.log('Database initialized at:', DB_PATH);

@@ -935,6 +935,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 .team-slot .sprite-types { margin-bottom: 5px; }
 .team-slot .sprite-stats { font-size: 11px; color: var(--text-muted); }
 .team-slot .sprite-config-hint { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.archetype-badge { display: inline-block; line-height: 1.4; }
 .team-slot .remove-btn {
   font-size: 11px; background: var(--danger); border-color: var(--danger);
   padding: 2px 6px; border-radius: var(--radius-sm); margin-top: 5px; color: #fff;

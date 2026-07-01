@@ -15,6 +15,7 @@ const TeamSim = (() => {
   let typeChart = {};
   let damageHistory = [];
   let textModalMode = 'export';
+  let archetypeCache = {};
 
   const NATURE_OPTIONS = [
     { value: '', label: '勤奮（無修正）' },
@@ -147,12 +148,44 @@ const TeamSim = (() => {
 
   // ── Team Rendering ──
 
-  function renderTeam(side) {
+  async function fetchArchetype(spriteId) {
+    if (archetypeCache[spriteId] !== undefined) return archetypeCache[spriteId];
+    try {
+      const result = await API.meta.archetype(spriteId);
+      archetypeCache[spriteId] = result;
+      return result;
+    } catch {
+      archetypeCache[spriteId] = null;
+      return null;
+    }
+  }
+
+  function archetypeBadgeHTML(archetype) {
+    if (!archetype) return '';
+    const colors = {
+      burst_attacker: '#e74c3c',
+      sustained_attacker: '#e67e22',
+      tank: '#3498db',
+      speedster: '#9b59b6',
+      support: '#2ecc71',
+      disruptive: '#f39c12',
+      balanced: '#95a5a6',
+    };
+    const color = colors[archetype.primary] || '#95a5a6';
+    return `<span class="archetype-badge" style="background:${color};color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;white-space:nowrap;">${archetype.primaryLabel || archetype.primary}</span>`;
+  }
+
+  async function renderTeam(side) {
     const team = side === 'my' ? myTeam : enemyTeam;
     const container = $(side === 'my' ? 'ts-myTeam' : 'ts-enemyTeam');
     if (!container) return;
 
     container.className = 'ts-team-grid';
+
+    // Pre-fetch archetypes for all sprites in parallel
+    const spriteIds = team.filter(s => s).map(s => s.id);
+    await Promise.all(spriteIds.map(id => fetchArchetype(id)));
+
     container.innerHTML = team.map((sprite, i) => {
       if (!sprite) {
         return `<div class="team-slot" onclick="TeamSim.openSpriteSelector('${side}')"><div class="add-hint">+ 點擊加入精靈</div></div>`;
@@ -170,10 +203,12 @@ const TeamSim = (() => {
       if (sprite.soul_seals?.length) hints.push(`魂印×${sprite.soul_seals.length}`);
       const hintStr = hints.length ? hints.join(' · ') : '';
       const evTotal = Object.values(sprite.evs).reduce((a, b) => a + b, 0);
+      const arch = archetypeCache[sprite.id];
 
       return `
         <div class="team-slot filled">
           <div class="sprite-name">${sprite.name_zh}</div>
+          ${arch ? `<div style="margin-bottom:3px;">${archetypeBadgeHTML(arch)}</div>` : ''}
           <div class="sprite-types">${(sprite.types || []).map(t => typeBadgeHTML(t)).join('')}</div>
           <div class="sprite-stats">Lv.${sprite.level || 100} · EV ${evTotal}/510</div>
           ${hintStr ? `<div class="sprite-config-hint">${hintStr}</div>` : ''}
@@ -1764,6 +1799,32 @@ const TeamSim = (() => {
     renderBanPick();
   }
 
+  // ── Battle Log Recording ──
+
+  async function recordBattle(result) {
+    const myIds = myTeam.filter(s => s).map(s => s.id);
+    const enemyIds = enemyTeam.filter(s => s).map(s => s.id);
+    if (!myIds.length || !enemyIds.length) {
+      alert('請先加入雙方精靈');
+      return;
+    }
+    const myLead = myTeam.findIndex(s => s);
+    const enemyLead = enemyTeam.findIndex(s => s);
+    try {
+      await API.battle.log({
+        mode: 'sim',
+        my_team: myIds,
+        enemy_team: enemyIds,
+        result,
+        my_lead: myLead >= 0 ? myIds[myLead] : null,
+        enemy_lead: enemyLead >= 0 ? enemyIds[enemyLead] : null,
+      });
+      alert(result === 'win' ? '已記錄勝利' : result === 'lose' ? '已記錄敗北' : '已記錄平手');
+    } catch (e) {
+      alert('記錄失敗: ' + e.message);
+    }
+  }
+
   return {
     init, openSpriteSelector, selectSpriteFromModal, addToTeam, removeFromTeam,
     openConfig, saveConfig, closeConfigModal, toggleCollapse, applyEvPreset,
@@ -1774,5 +1835,6 @@ const TeamSim = (() => {
     createProfile, renameProfile, deleteProfile, loadProfiles, switchProfile,
     runTacticAdvice,
     runMatchupAnalysis, startBanPick, resetBanPick, banPickAction,
+    recordBattle,
   };
 })();

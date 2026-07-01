@@ -42,8 +42,8 @@ const typeChart = {
 const allTypes = Object.keys(typeChart);
 
 const insertTypeChart = db.prepare(`
-  INSERT OR REPLACE INTO type_chart (attack_type, defend_type, multiplier)
-  VALUES (?, ?, ?)
+  INSERT OR REPLACE INTO type_chart (attack_type, defend_type, multiplier, rule_type, source, confidence)
+  VALUES (?, ?, ?, 'base', 'seed', 1.0)
 `);
 
 const seedTransaction = db.transaction(() => {

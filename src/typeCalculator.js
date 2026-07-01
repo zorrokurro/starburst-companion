@@ -1,129 +1,129 @@
+/**
+ * Type Calculator — Type Effectiveness Engine
+ *
+ * Uses type-rule-resolver for rule layering and breakdown.
+ * Maintains backward compatibility with existing API.
+ *
+ * TASK 3: Type System Rule Engine
+ */
 import { getDb } from './db.js';
+import {
+  resolveTypeEffectiveness,
+  resolveDualDefense,
+  resolveFullTypeEffectiveness,
+  resolveTypeEffectivenessAgainst,
+} from './type-rule-resolver.js';
 
 let typeChartCache = null;
+let rulesCache = null;
+
+function loadRules() {
+  if (rulesCache) return rulesCache;
+  const db = getDb();
+  rulesCache = db.prepare(
+    'SELECT attack_type, defend_type, multiplier, rule_type, source, confidence, note FROM type_chart'
+  ).all();
+  return rulesCache;
+}
 
 function getTypeChart() {
   if (typeChartCache) return typeChartCache;
-  
-  const db = getDb();
-  const rows = db.prepare('SELECT attack_type, defend_type, multiplier FROM type_chart').all();
-  
+
+  const rules = loadRules();
   typeChartCache = {};
-  for (const row of rows) {
+  for (const row of rules) {
     if (!typeChartCache[row.attack_type]) {
       typeChartCache[row.attack_type] = {};
     }
-    typeChartCache[row.attack_type][row.defend_type] = row.multiplier;
+    // Use base rules for the flat cache (backward compat)
+    if (row.rule_type === 'base' || !typeChartCache[row.attack_type][row.defend_type]) {
+      typeChartCache[row.attack_type][row.defend_type] = row.multiplier;
+    }
   }
-  
+
   return typeChartCache;
 }
 
 /**
- * Get single-type to single-type effectiveness multiplier
- * @param {string} attackType - Attack type
- * @param {string} defendType - Defend type
- * @returns {number} Multiplier (0, 0.5, 1, or 2)
+ * Get single-type to single-type effectiveness multiplier (backward compat)
+ * @param {string} attackType
+ * @param {string} defendType
+ * @returns {number}
  */
 export function getSingleTypeMultiplier(attackType, defendType) {
   if (attackType === defendType) return 1;
-  
   const chart = getTypeChart();
   return chart[attackType]?.[defendType] ?? 1;
 }
 
 /**
- * Calculate defense multiplier for single-type attack against dual-type defense
- * Rules:
- * - Split dual-type defense into two single types
- * - Calculate each single-type multiplier
- * - If both are 2: final = 4
- * - If one is 0: final = sum / 4
- * - Otherwise: final = sum / 2
- * @param {string} attackType - Single attack type
- * @param {string[]} defendTypes - Array of 1 or 2 defense types
- * @returns {number} Final multiplier
+ * Resolve single-type attack vs single-type defense with full breakdown.
+ * @returns {{ finalMultiplier: number, breakdown: Array, confidence: number }}
+ */
+export function resolveSingleType(attackType, defendType) {
+  if (attackType === defendType) {
+    return {
+      finalMultiplier: 1,
+      breakdown: [{ ruleType: 'self', multiplier: 1, source: 'implicit', confidence: 1.0 }],
+      confidence: 1.0,
+    };
+  }
+  return resolveTypeEffectiveness(attackType, defendType, loadRules());
+}
+
+/**
+ * Calculate defense multiplier for single-type attack against dual-type defense (backward compat)
  */
 export function calculateDefenseMultiplier(attackType, defendTypes) {
   if (defendTypes.length === 1) {
     return getSingleTypeMultiplier(attackType, defendTypes[0]);
   }
-  
+
   const m1 = getSingleTypeMultiplier(attackType, defendTypes[0]);
   const m2 = getSingleTypeMultiplier(attackType, defendTypes[1]);
-  
+
   if (m1 === 2 && m2 === 2) return 4;
   if (m1 === 0 || m2 === 0) return (m1 + m2) / 4;
   return (m1 + m2) / 2;
 }
 
 /**
- * Calculate defense multiplier for dual-type attack against single/dual-type defense
- * Rules:
- * - Split dual-type attack into two single types
- * - Calculate each single-type multiplier against defense
- * - If both are 2: final = 4
- * - If one is 0: final = sum / 4
- * - Otherwise: final = sum / 2
- * @param {string[]} attackTypes - Array of 1 or 2 attack types
- * @param {string[]} defendTypes - Array of 1 or 2 defense types
- * @returns {number} Final multiplier
+ * Calculate type multiplier for any attack/defense combo (backward compat)
  */
 export function calculateTypeMultiplier(attackTypes, defendTypes) {
   if (attackTypes.length === 1 && defendTypes.length === 1) {
     return getSingleTypeMultiplier(attackTypes[0], defendTypes[0]);
   }
-  
+
   if (attackTypes.length === 1) {
     return calculateDefenseMultiplier(attackTypes[0], defendTypes);
   }
-  
-  // Dual-type attack: calculate each attack type's multiplier against defense, then average
+
   const m1 = calculateDefenseMultiplier(attackTypes[0], defendTypes);
   const m2 = calculateDefenseMultiplier(attackTypes[1], defendTypes);
-  
+
   if (m1 === 2 && m2 === 2) return 4;
   if (m1 === 0 || m2 === 0) return (m1 + m2) / 4;
   return (m1 + m2) / 2;
 }
 
 /**
- * Get all type effectiveness relationships for a given defense type(s)
- * @param {string[]} defendTypes - Defense type(s)
- * @returns {{ superEffective: Array, notEffective: Array, immune: Array }}
+ * Resolve full type effectiveness with breakdown (new API).
+ * @returns {{ finalMultiplier: number, breakdown: Array, confidence: number }}
  */
-export function getTypeEffectivenessAgainst(defendTypes) {
-  const allTypes = Object.keys(getTypeChart());
-  
-  const superEffective = []; // multiplier > 1
-  const notEffective = [];   // multiplier < 1 and > 0
-  const immune = [];         // multiplier = 0
-  const normal = [];         // multiplier = 1
-  
-  for (const attackType of allTypes) {
-    const multiplier = calculateTypeMultiplier([attackType], defendTypes);
-    
-    if (multiplier >= 2) {
-      superEffective.push({ type: attackType, multiplier });
-    } else if (multiplier > 0 && multiplier < 1) {
-      notEffective.push({ type: attackType, multiplier });
-    } else if (multiplier === 0) {
-      immune.push({ type: attackType, multiplier });
-    } else {
-      normal.push({ type: attackType, multiplier });
-    }
-  }
-  
-  return { superEffective, notEffective, immune, normal };
+export function resolveTypeMatchup(attackTypes, defendTypes) {
+  return resolveFullTypeEffectiveness(attackTypes, defendTypes, loadRules());
 }
 
 /**
- * Calculate STAB (Same Type Attack Bonus)
- * Single-type sprite using same-type skill: 1.5x
- * Dual-type sprite using either of its types' skills: 1.5x
- * @param {string[]} spriteTypes - Sprite's types
- * @param {string} skillType - Skill's type
- * @returns {number} STAB multiplier (1 or 1.5)
+ * Get all type effectiveness relationships (backward compat + breakdown)
+ */
+export function getTypeEffectivenessAgainst(defendTypes) {
+  return resolveTypeEffectivenessAgainst(defendTypes, loadRules());
+}
+
+/**
+ * Calculate STAB (backward compat)
  */
 export function calculateSTAB(spriteTypes, skillType) {
   if (!skillType || !spriteTypes || spriteTypes.length === 0) return 1;
@@ -131,9 +131,15 @@ export function calculateSTAB(spriteTypes, skillType) {
 }
 
 /**
- * Build complete type chart matrix for display
- * @returns {Object} Matrix of multipliers [attackType][defendType]
+ * Build complete type chart matrix (backward compat)
  */
 export function getTypeChartMatrix() {
   return getTypeChart();
+}
+
+/**
+ * Get raw rules (for debugging / display)
+ */
+export function getTypeRules() {
+  return loadRules();
 }

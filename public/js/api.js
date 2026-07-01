@@ -216,6 +216,19 @@ const API = {
   meta: {
     aggregate(season) { return API.invoke('db:meta:aggregate', season); },
     reports(season, limit) { return API.invoke('db:meta:reports', season, limit); },
+    archetype(spriteId) { return API.invoke('db:meta:archetype', spriteId); },
+    archetypes() { return API.invoke('db:meta:archetypes'); },
+    archetypeDistribution() { return API.invoke('db:meta:archetype-distribution'); },
+    archetypeLabels() { return API.invoke('db:meta:archetype-labels'); },
+    matchupMatrix(myIds, enemyIds) { return API.invoke('db:meta:matchup-matrix', myIds, enemyIds); },
+    matchups(spriteId) { return API.invoke('db:meta:matchups', spriteId); },
+    top(limit, season) { return API.invoke('db:meta:top', limit, season); },
+    trends(spriteId, season) { return API.invoke('db:meta:trends', spriteId, season); },
+    full(season) { return API.invoke('db:meta:full', season); },
+    refresh() { return API.invoke('db:meta:refresh'); },
+    classifyAll() { return API.invoke('db:meta:classify-all'); },
+    // Unified query entry point — reduces IPC boilerplate for new analytics types
+    query(type, params = {}) { return API.invoke('db:meta:query', type, params); },
   },
 
   collections: {

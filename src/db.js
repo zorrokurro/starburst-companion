@@ -83,6 +83,29 @@ function getDb() {
     try {
       db.exec('ALTER TABLE soul_seals ADD COLUMN kind TEXT');
     } catch {}
+    // Soul seal semantic layer (Phase 1: Truth Layer)
+    try { db.exec('ALTER TABLE soul_seals ADD COLUMN effect_raw TEXT'); } catch {}
+    try { db.exec('ALTER TABLE soul_seals ADD COLUMN effect_semantic TEXT'); } catch {}
+    try { db.exec("ALTER TABLE soul_seals ADD COLUMN tags TEXT DEFAULT '[]'"); } catch {}
+    try { db.exec('ALTER TABLE soul_seals ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+    try { db.exec("ALTER TABLE soul_seals ADD COLUMN source TEXT DEFAULT 'bwiki'"); } catch {}
+    // Generic traits semantic layer (TASK 2: Ability Taxonomy)
+    try { db.exec('ALTER TABLE generic_traits ADD COLUMN trigger_type TEXT'); } catch {}
+    try { db.exec('ALTER TABLE generic_traits ADD COLUMN effect_type TEXT'); } catch {}
+    try { db.exec("ALTER TABLE generic_traits ADD COLUMN target TEXT DEFAULT 'self'"); } catch {}
+    try { db.exec('ALTER TABLE generic_traits ADD COLUMN stat_modified TEXT'); } catch {}
+    try { db.exec('ALTER TABLE generic_traits ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+    // Type chart rule engine (TASK 3: Type System)
+    try { db.exec("ALTER TABLE type_chart ADD COLUMN rule_type TEXT DEFAULT 'base'"); } catch {}
+    try { db.exec("ALTER TABLE type_chart ADD COLUMN source TEXT DEFAULT 'seed'"); } catch {}
+    try { db.exec('ALTER TABLE type_chart ADD COLUMN confidence REAL DEFAULT 1.0'); } catch {}
+    try { db.exec('ALTER TABLE type_chart ADD COLUMN note TEXT'); } catch {}
+    // Phase 2: Meta System migrations
+    try { db.exec('ALTER TABLE battle_logs ADD COLUMN my_lead INTEGER'); } catch {}
+    try { db.exec('ALTER TABLE battle_logs ADD COLUMN enemy_lead INTEGER'); } catch {}
+    try { db.exec('ALTER TABLE battle_logs ADD COLUMN turns INTEGER'); } catch {}
+    try { db.exec('ALTER TABLE battle_logs ADD COLUMN my_roster TEXT'); } catch {}
+    try { db.exec('ALTER TABLE battle_logs ADD COLUMN enemy_roster TEXT'); } catch {}
   }
   return db;
 }
@@ -93,6 +116,15 @@ function parseTypes(typesText) {
     return JSON.parse(typesText);
   } catch {
     return [];
+  }
+}
+
+function safeParseJSON(text, fallback) {
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
   }
 }
 
@@ -221,7 +253,12 @@ function getSpriteById(id) {
     tags: (() => { try { return JSON.parse(sk.tags || '[]'); } catch { return []; } })(),
   }));
 
-  row.soul_seals = d.prepare(`SELECT * FROM soul_seals WHERE sprite_id = ?`).all(id);
+  row.soul_seals = d.prepare(`SELECT * FROM soul_seals WHERE sprite_id = ?`).all(id).map(ss => ({
+    ...ss,
+    tags: safeParseJSON(ss.tags, []),
+    trigger_condition: safeParseJSON(ss.trigger_condition, []),
+    effect_semantic: safeParseJSON(ss.effect_semantic, null),
+  }));
 
   row.exclusiveEngraving = d.prepare(`SELECT * FROM engravings WHERE exclusive_sprite_id = ?`).get(id) || null;
 
@@ -427,8 +464,22 @@ function getMovesetsBySpriteId(spriteId) {
 function insertBattleLog(log) {
   const d = getDb();
   const result = d.prepare(
-    'INSERT INTO battle_logs (mode, my_team, enemy_team, result, duration_seconds, key_moments, enemy_hash) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(log.mode, JSON.stringify(log.my_team), JSON.stringify(log.enemy_team), log.result, log.duration_seconds || null, log.key_moments ? JSON.stringify(log.key_moments) : null, log.enemy_hash || null);
+    `INSERT INTO battle_logs (mode, my_team, enemy_team, result, duration_seconds, key_moments, enemy_hash, my_lead, enemy_lead, turns, my_roster, enemy_roster)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(
+    log.mode,
+    JSON.stringify(log.my_team),
+    JSON.stringify(log.enemy_team),
+    log.result,
+    log.duration_seconds || null,
+    log.key_moments ? JSON.stringify(log.key_moments) : null,
+    log.enemy_hash || null,
+    log.my_lead || null,
+    log.enemy_lead || null,
+    log.turns || null,
+    log.my_roster ? JSON.stringify(log.my_roster) : null,
+    log.enemy_roster ? JSON.stringify(log.enemy_roster) : null
+  );
 
   // Update battle_stats
   const allSprites = [...new Set([...log.my_team, ...log.enemy_team])];
@@ -447,6 +498,23 @@ function insertBattleLog(log) {
         (isMy && log.result === 'win') ? 1 : 0,
         (isMy && log.result === 'ban') ? 1 : 0
       );
+    }
+  }
+
+  // Update matchup_stats
+  const myTeam = log.my_team || [];
+  const enemyTeam = log.enemy_team || [];
+  const isWin = log.result === 'win';
+  const upsertMatchup = d.prepare(`
+    INSERT INTO matchup_stats (attacker_sprite_id, defender_sprite_id, games, wins, updated_at)
+    VALUES (?, ?, 1, ?, datetime('now'))
+    ON CONFLICT(attacker_sprite_id, defender_sprite_id)
+    DO UPDATE SET games = games + 1, wins = wins + ?, updated_at = datetime('now')
+  `);
+  for (const myId of myTeam) {
+    for (const enemyId of enemyTeam) {
+      const w = isWin ? 1 : 0;
+      upsertMatchup.run(myId, enemyId, w, w);
     }
   }
 
@@ -532,7 +600,7 @@ export {
   getAllCollections, getCollectionById, createCollection, updateCollection,
   deleteCollection, reorderCollection, getCollectionItems, addToCollection,
   removeFromCollection, reorderCollectionItem, getSpriteCollections,
-  parseTypes, searchEngravings, getEngravingsFilters,
+  parseTypes, safeParseJSON, searchEngravings, getEngravingsFilters,
   getAllGenericTraits, getMovesetsBySpriteId,
   insertBattleLog, getBattleLogs, getBattleStats, getBattleSummary,
   aggregateMeta, getMetaReports
