@@ -1,6 +1,6 @@
 {
   "name": "seer-tactics",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "星爆輔助器",
   "main": "main.cjs",
   "type": "module",
